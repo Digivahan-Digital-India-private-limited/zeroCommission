@@ -18,7 +18,7 @@ const features = [
 function OthersBadge({ status, text }) {
   const isBad = status === 'bad'
   return (
-    <div style={{ display:'flex', alignItems:'center', justifyContent:'flex-start', gap:8, width: '90px' }}>
+    <div style={{ display:'flex', alignItems:'center', justifyContent:'flex-start', gap:8, width: '90px', maxWidth: '100%' }}>
       <span style={{
         width:24, height:24, borderRadius:'50%', flexShrink:0,
         background: isBad ? '#ef4444' : '#f59e0b',
@@ -36,7 +36,7 @@ function OthersBadge({ status, text }) {
           </svg>
         )}
       </span>
-      <span style={{ color:'#374151', fontWeight:600, fontSize:15 }}>{text}</span>
+      <span style={{ color:'#374151', fontWeight:600, fontSize:'clamp(13px, 3.5vw, 15px)' }}>{text}</span>
     </div>
   )
 }
@@ -44,17 +44,17 @@ function OthersBadge({ status, text }) {
 /* ── green check for the "Zero Commission" column ─────────────────────── */
 function GreenCheck({ label }) {
   return (
-    <div style={{ display:'flex', alignItems:'center', justifyContent:'flex-start', gap:14, width: '100%' }}>
+    <div style={{ display:'flex', alignItems:'center', justifyContent:'flex-start', gap:10, width: '100%' }}>
       <span style={{
-        width:28, height:28, borderRadius:'50%', flexShrink:0,
+        width:26, height:26, borderRadius:'50%', flexShrink:0,
         background:'#22c55e',
         display:'inline-flex', alignItems:'center', justifyContent:'center',
       }}>
-        <svg width="13" height="10" viewBox="0 0 13 10" fill="none">
+        <svg width="12" height="9" viewBox="0 0 13 10" fill="none">
           <path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       </span>
-      <span style={{ color:'#fff', fontWeight:700, fontSize:17 }}>{label}</span>
+      <span style={{ color:'#fff', fontWeight:700, fontSize:'clamp(14px, 3.5vw, 17px)' }}>{label}</span>
     </div>
   )
 }
@@ -64,12 +64,14 @@ export default function WhyChooseUs() {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      const header  = sectionRef.current?.querySelector('.wcu-header')
-      const table   = sectionRef.current?.querySelector('.wcu-table')
-      const banner  = sectionRef.current?.querySelector('.wcu-banner')
+      const header      = sectionRef.current?.querySelector('.wcu-header')
+      const table       = sectionRef.current?.querySelector('.wcu-table')
+      const tableMobile = sectionRef.current?.querySelector('.wcu-table-mobile')
+      const banner      = sectionRef.current?.querySelector('.wcu-banner')
 
       if (header) gsap.fromTo(header,  { y:50, opacity:0 }, { y:0, opacity:1, duration:1,   ease:'power4.out', scrollTrigger:{ trigger:header, start:'top 88%' } })
       if (table)  gsap.fromTo(table,   { y:60, opacity:0 }, { y:0, opacity:1, duration:0.9, ease:'power4.out', scrollTrigger:{ trigger:table,  start:'top 85%' } })
+      if (tableMobile) gsap.fromTo(tableMobile, { y:60, opacity:0 }, { y:0, opacity:1, duration:0.9, ease:'power4.out', scrollTrigger:{ trigger:tableMobile,  start:'top 85%' } })
       if (banner) gsap.fromTo(banner,  { y:30, opacity:0 }, { y:0, opacity:1, duration:0.8, ease:'power4.out', scrollTrigger:{ trigger:banner, start:'top 92%' } })
     }, sectionRef)
     return () => ctx.revert()
@@ -124,7 +126,7 @@ export default function WhyChooseUs() {
             Layout: [white card with feature+others cols] + [blue card for ZC col]
             The blue card is a separate rounded box so it looks exactly like the screenshot.
         */}
-        <div className="wcu-table overflow-x-auto pb-6 w-full custom-scrollbar">
+        <div className="wcu-table hidden md:block overflow-x-auto pb-6 w-full custom-scrollbar">
           <div style={{ display:'flex', gap:0, alignItems:'stretch', minWidth: '800px', padding: '0 8px' }}>
 
           {/* ── LEFT PANEL (white card) ─────────────────────────────── */}
@@ -219,6 +221,33 @@ export default function WhyChooseUs() {
             </div>
           </div>
           </div>
+        </div>
+
+        {/* ── MOBILE LAYOUT (Stacked Cards) ─────────────────────────────── */}
+        <div className="wcu-table-mobile flex flex-col md:hidden gap-4 pb-6 w-full">
+          {features.map(({ icon: Icon, title, desc, others, us }, i) => (
+            <div key={title} className="bg-white rounded-[20px] border border-[#e8edf5] shadow-sm overflow-hidden flex flex-col">
+               <div className="p-4 flex items-center gap-4 border-b border-[#f0f2fb]">
+                 <div style={{ width:44, height:44, borderRadius:12, flexShrink:0, background:'linear-gradient(135deg,#e8f0fe,#dbeafe)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                   <Icon size={20} color="#0176C7" />
+                 </div>
+                 <div>
+                   <div style={{ fontWeight:800, color:'#1a237e', fontSize:15, marginBottom:2 }}>{title}</div>
+                   <div style={{ color:'#6b7280', fontSize:13 }}>{desc}</div>
+                 </div>
+               </div>
+               <div className="flex">
+                 <div className="flex-1 p-4 flex flex-col justify-center border-r border-[#f0f2fb]">
+                    <div style={{ fontSize:11, fontWeight:800, color:'#1a237e', letterSpacing:'0.15em', textTransform:'uppercase', marginBottom:8 }}>Others</div>
+                    <OthersBadge {...others} />
+                 </div>
+                 <div className="flex-1 p-4 flex flex-col justify-center" style={{ background:'linear-gradient(160deg,#1e3fa8 0%,#0d2478 100%)' }}>
+                    <div style={{ fontSize:11, fontWeight:800, color:'#fff', letterSpacing:'0.15em', textTransform:'uppercase', marginBottom:8 }}>Zero Commission</div>
+                    <GreenCheck label={us} />
+                 </div>
+               </div>
+            </div>
+          ))}
         </div>
 
         {/* ── BOTTOM BANNER ────────────────────────────────────────────────── */}

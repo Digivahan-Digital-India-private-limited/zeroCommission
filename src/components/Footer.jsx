@@ -1,4 +1,4 @@
-import { Facebook, Instagram, Linkedin, Youtube, Mail, MapPin, Phone, IndianRupee, Shield, Clock, Handshake, Percent, Headphones } from 'lucide-react';
+import { Facebook, Instagram, Linkedin, Youtube, Mail, MapPin, Phone, IndianRupee, Shield, Clock, Handshake, Percent, Headphones, ChevronDown } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import logoFull from '../assets/finale logo white.png';
 import ctaBg from '../assets/footer-team.webp';
@@ -27,6 +27,11 @@ const companyLinks = [
   { label: 'Contact Us', href: '/contact' },
 ];
 
+const toolsLinks = [
+  { label: 'Eligibility Calculator', href: '/eligibility-calculator' },
+  { label: 'EMI Calculator', href: '/emi-calculator' },
+];
+
 const resourceLinks = [
   { label: "FAQ's", href: '/contact' },
   { label: 'Privacy Policy', href: '/privacy-policy' },
@@ -50,6 +55,7 @@ const avatars = [
 
 /* matches Values / WhyChooseUs / other sections: max-w-[1440px] px-10 */
 const SIDE = '40px';
+const SIDE_MOBILE = '20px';
 const MAX = 1440;
 
 export default function Footer() {
@@ -57,18 +63,19 @@ export default function Footer() {
   const { pathname } = useLocation();
   const showCTA = pathname === '/contact' || pathname === '/services';
   const [consultOpen, setConsultOpen] = useState(false);
+  const [toolsOpen, setToolsOpen] = useState(false);
 
   return (
     <footer style={{ fontFamily: "'Inter','Segoe UI',Arial,sans-serif", background: '#fff' }}>
 
       {/* ── 1. CTA CARD (only on /contact and /services) ─────────────────── */}
       {showCTA && (
-        <div style={{ padding: `24px 20px 0`, maxWidth: MAX, margin: '0 auto' }}>
+        <div style={{ padding: `24px ${SIDE_MOBILE} 0`, maxWidth: MAX, margin: '0 auto' }} className="md:px-10">
           <div style={{
             position: 'relative', overflow: 'hidden',
             borderRadius: 16,
             boxShadow: '0 6px 32px rgba(13,36,120,0.10)',
-            minHeight: 240,
+            minHeight: 200,
           }}>
             {/* bg photo */}
             <img src={ctaBg} alt="team"
@@ -81,7 +88,7 @@ export default function Footer() {
             }} />
 
             {/* content */}
-            <div style={{ position: 'relative', zIndex: 1, maxWidth: MAX, margin: '0 auto', padding: '36px 36px' }}>
+            <div style={{ position: 'relative', zIndex: 1, maxWidth: MAX, margin: '0 auto', padding: '28px 20px' }} className="md:px-9 md:py-9">
               <div style={{ maxWidth: 460 }}>
 
                 {/* badge */}
@@ -144,7 +151,7 @@ export default function Footer() {
 
       {/* ── 2. FEATURES GRID (only on /contact and /services) ──────────── */}
       {showCTA && (
-        <div style={{ maxWidth: MAX, margin: '16px auto 16px', padding: `0 ${SIDE}`, position: 'relative', zIndex: 2 }}>
+        <div style={{ maxWidth: MAX, margin: '16px auto 16px', padding: `0 ${SIDE_MOBILE}`, position: 'relative', zIndex: 2 }} className="md:px-10">
           <div className="bg-white grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5" style={{
             borderRadius: 20,
             border: '1px solid #e8edf5',
@@ -172,19 +179,19 @@ export default function Footer() {
 
       {/* ── 3. DARK BLUE FOOTER ─────────────────────────────────────── */}
       <div style={{ background: '#0d2478', color: '#fff' }}>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-4" style={{
+        <div className="grid grid-cols-2 lg:grid-cols-12 gap-6 lg:gap-4" style={{
           maxWidth: MAX, margin: '0 auto',
-          padding: `36px ${SIDE} 24px`,
-        }}>
+          padding: `28px ${SIDE_MOBILE} 20px`,
+        }} id="footer-grid">
 
-          {/* Brand */}
-          <div className="lg:col-span-3">
+          {/* Brand — full width on mobile, 3 cols on lg */}
+          <div className="col-span-2 lg:col-span-3">
             <img src={logoFull} alt="Zero Commission Logo"
-              style={{ height: 56, objectFit: 'contain', marginBottom: 14 }} />
-            <p style={{ color: 'rgba(255,255,255,0.62)', fontSize: 14, lineHeight: 1.7, margin: '0 0 4px', maxWidth: 210 }}>
+              className="h-8 md:h-11 object-contain mb-3" />
+            <p style={{ color: 'rgba(255,255,255,0.62)', fontSize: 13, lineHeight: 1.7, margin: '0 0 4px', maxWidth: 210 }}>
               Making loans simple, transparent<br />and accessible for everyone.
             </p>
-            <p style={{ color: 'rgba(255,255,255,0.62)', fontSize: 14, fontWeight: 500, margin: '0 0 18px' }}>
+            <p style={{ color: 'rgba(255,255,255,0.62)', fontSize: 12, fontWeight: 500, margin: '0 0 14px' }}>
               Zero Commission (A Unit Of Digivahan Digital India Private Limited).
             </p>
             <div style={{ display: 'flex', gap: 8 }}>
@@ -203,8 +210,8 @@ export default function Footer() {
           </div>
 
           {/* Our Products */}
-          <div className="lg:col-span-2">
-            <h4 style={{ color: '#fff', fontSize: 14.5, fontWeight: 700, margin: '0 0 16px' }}>Our Products</h4>
+          <div className="col-span-1 lg:col-span-2">
+            <h4 style={{ color: '#fff', fontSize: 13.5, fontWeight: 700, margin: '0 0 12px' }}>Our Products</h4>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 11 }}>
               {products.map(({ label }) => (
                 <li key={label}>
@@ -230,8 +237,8 @@ export default function Footer() {
           </div>
 
           {/* Company */}
-          <div className="lg:col-span-2">
-            <h4 style={{ color: '#fff', fontSize: 14.5, fontWeight: 700, margin: '0 0 16px' }}>Company</h4>
+          <div className="col-span-1 lg:col-span-2">
+            <h4 style={{ color: '#fff', fontSize: 13.5, fontWeight: 700, margin: '0 0 12px' }}>Company</h4>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 11 }}>
               {companyLinks.map(({ label, href }) => (
                 <li key={label}>
@@ -244,12 +251,55 @@ export default function Footer() {
           </div>
 
           {/* Resources */}
-          <div className="lg:col-span-2">
-            <h4 style={{ color: '#fff', fontSize: 14.5, fontWeight: 700, margin: '0 0 16px' }}>Resources</h4>
+          <div className="col-span-1 lg:col-span-2">
+            <h4 style={{ color: '#fff', fontSize: 13.5, fontWeight: 700, margin: '0 0 12px' }}>Resources</h4>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 11 }}>
+              
+              {/* Nested Collapsible Tools */}
+              <li>
+                <button
+                  onClick={() => setToolsOpen(!toolsOpen)}
+                  className="flex items-center gap-1.5 hover:text-white transition-colors"
+                  style={{
+                    color: 'rgba(255,255,255,0.65)',
+                    fontSize: 13.5,
+                    background: 'none',
+                    border: 'none',
+                    padding: 0,
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    fontWeight: 600,
+                  }}
+                >
+                  Tools
+                  <ChevronDown size={12} className="transition-transform duration-200" style={{ transform: toolsOpen ? 'rotate(180deg)' : 'none' }} />
+                </button>
+                <ul style={{
+                  listStyle: 'none',
+                  paddingLeft: 12,
+                  marginTop: 8,
+                  display: toolsOpen ? 'flex' : 'none',
+                  flexDirection: 'column',
+                  gap: 8,
+                  borderLeft: '1px solid rgba(255,255,255,0.15)'
+                }}>
+                  {toolsLinks.map(({ label, href }) => (
+                    <li key={label}>
+                      <Link to={href} style={{ color: 'rgba(255,255,255,0.5)', fontSize: 12.5, textDecoration: 'none' }}
+                        onMouseEnter={(e) => e.target.style.color = '#fff'}
+                        onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.5)'}>
+                        {label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </li>
+
               {resourceLinks.map(({ label, href }) => (
                 <li key={label}>
-                  <Link to={href} style={{ color: 'rgba(255,255,255,0.65)', fontSize: 13.5, textDecoration: 'none' }}>
+                  <Link to={href} style={{ color: 'rgba(255,255,255,0.65)', fontSize: 13.5, textDecoration: 'none' }}
+                    onMouseEnter={(e) => e.target.style.color = '#fff'}
+                    onMouseLeave={(e) => e.target.style.color = 'rgba(255,255,255,0.65)'}>
                     {label}
                   </Link>
                 </li>
@@ -257,15 +307,15 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Contact Us */}
-          <div className="lg:col-span-3">
-            <h4 style={{ color: '#fff', fontSize: 14.5, fontWeight: 700, margin: '0 0 16px' }}>Contact Us</h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 15 }}>
+          {/* Contact Us — full width on mobile, 3 cols on lg */}
+          <div className="col-span-2 lg:col-span-3">
+            <h4 style={{ color: '#fff', fontSize: 13.5, fontWeight: 700, margin: '0 0 12px' }}>Contact Us</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
                 <div style={{ width: 32, height: 32, borderRadius: '50%', border: '1px solid rgba(255,255,255,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <Phone size={14} color="rgba(255,255,255,0.85)" />
                 </div>
-                <a href="tel:+919990323833" style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13.5, textDecoration: 'none' }}>
+                <a href="tel:+919990323833" style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13, textDecoration: 'none' }}>
                   +91 9990323833
                 </a>
               </div>
@@ -273,7 +323,7 @@ export default function Footer() {
                 <div style={{ width: 32, height: 32, borderRadius: '50%', border: '1px solid rgba(255,255,255,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <Mail size={14} color="rgba(255,255,255,0.85)" />
                 </div>
-                <a href="mailto:support@zerocommissionloan.com" style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13.5, textDecoration: 'none' }}>
+                <a href="mailto:support@zerocommissionloan.com" style={{ color: 'rgba(255,255,255,0.85)', fontSize: 12, textDecoration: 'none', wordBreak: 'break-all' }}>
                   support@zerocommissionloan.com
                 </a>
               </div>
@@ -281,7 +331,7 @@ export default function Footer() {
                 <div style={{ width: 32, height: 32, borderRadius: '50%', border: '1px solid rgba(255,255,255,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 2 }}>
                   <MapPin size={14} color="rgba(255,255,255,0.85)" />
                 </div>
-                <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13, lineHeight: 1.7 }}>
+                <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: 12, lineHeight: 1.7 }}>
                   Unit No. 309, 3rd Floor, Tower-A,<br />
                   SAS Tower, Medicity, Sector-38,<br />
                   Gurgaon – 122001
@@ -296,13 +346,13 @@ export default function Footer() {
         <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
           <div style={{
             maxWidth: MAX, margin: '0 auto',
-            padding: `12px ${SIDE}`,
+            padding: `12px ${SIDE_MOBILE}`,
             display: 'flex', justifyContent: 'space-between', alignItems: 'center',
             flexWrap: 'wrap', gap: 8,
-            fontSize: 12, color: 'rgba(255,255,255,0.38)',
+            fontSize: 11, color: 'rgba(255,255,255,0.38)',
           }}>
             <span>© {new Date().getFullYear()} Zero Commission A Unit Of Digivahan Digital India Private Limited.</span>
-            <div style={{ display: 'flex', gap: 20 }}>
+            <div style={{ display: 'flex', gap: 16 }}>
               <Link to="/privacy-policy" style={{ color: 'rgba(255,255,255,0.38)', textDecoration: 'none' }}>Privacy Policy</Link>
               <Link to="/terms-conditions" style={{ color: 'rgba(255,255,255,0.38)', textDecoration: 'none' }}>Terms of Service</Link>
             </div>

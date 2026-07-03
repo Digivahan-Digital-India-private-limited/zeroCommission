@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
-import { Menu, X, ChevronRight, Upload } from 'lucide-react'
+import { Menu, X, ChevronRight, Upload, ChevronDown } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 import logoFull from '../assets/main logo.png'
 import logoIcon from '../assets/logo-icon.png'
@@ -95,12 +95,7 @@ export default function Navbar() {
     }
   }, [menuOpen])
 
-  const links = [
-    { href: '/', label: 'Home' },
-    { href: '/about', label: 'About Us' },
-    { href: '/services', label: 'Services' },
-    { href: '/contact', label: 'Contact' },
-  ]
+  // Removed links array as we are hardcoding the links to accommodate the dropdown
 
   return (
     <>
@@ -128,10 +123,30 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Links */}
-          <div className="hidden md:flex items-center gap-8">
-            {links.map(link => (
-              <NavLink key={link.href} href={link.href}>{link.label}</NavLink>
-            ))}
+          <div className="hidden md:flex items-center gap-8 z-50">
+            <NavLink href="/">Home</NavLink>
+            <NavLink href="/about">About Us</NavLink>
+            <NavLink href="/services">Services</NavLink>
+
+            {/* Tools Dropdown */}
+            <div className="relative group">
+              <button className="flex items-center gap-1 font-semibold transition-colors duration-200 text-[15px] py-2"
+                style={{ color: '#0f1857cc' }}>
+                Tools <ChevronDown size={14} className="group-hover:rotate-180 transition-transform duration-200" />
+              </button>
+              <div className="absolute top-full left-0 w-56 bg-white rounded-xl shadow-xl border border-black/5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-left translate-y-2 group-hover:translate-y-0 overflow-hidden">
+                <div className="flex flex-col py-2">
+                  <Link to="/eligibility-calculator" className="block px-4 py-2.5 text-sm font-semibold text-[#0f1857]/80 hover:bg-[#f0f6ff] hover:text-[#0176C7] transition-colors">
+                    Eligibility Calculator
+                  </Link>
+                  <Link to="/emi-calculator" className="block px-4 py-2.5 text-sm font-semibold text-[#0f1857]/80 hover:bg-[#f0f6ff] hover:text-[#0176C7] transition-colors">
+                    EMI Calculator
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            <NavLink href="/contact">Contact</NavLink>
           </div>
 
           {/* CTA & Hamburger */}
@@ -167,23 +182,22 @@ export default function Navbar() {
           opacity: 0
         }}>
         <div className="flex flex-col gap-1">
-          {links.map(link => {
-            const isHash = link.href.startsWith('#') || link.href.startsWith('/#')
-            if (isHash) {
-              return (
-                <a key={link.href} href={link.href} onClick={() => setMenuOpen(false)}
-                  className="text-[#0f1857]/80 hover:text-[#0f1857] hover:bg-black/5 px-4 py-3 rounded-xl font-semibold transition-all duration-250">
-                  {link.label}
-                </a>
-              )
-            }
-            return (
-              <Link key={link.href} to={link.href} onClick={() => setMenuOpen(false)}
-                className="text-[#0f1857]/80 hover:text-[#0f1857] hover:bg-black/5 px-4 py-3 rounded-xl font-semibold transition-all duration-250">
-                {link.label}
-              </Link>
-            )
-          })}
+          <Link to="/" onClick={() => setMenuOpen(false)} className="text-[#0f1857]/80 hover:text-[#0f1857] hover:bg-black/5 px-4 py-3 rounded-xl font-semibold transition-all duration-250">Home</Link>
+          <Link to="/about" onClick={() => setMenuOpen(false)} className="text-[#0f1857]/80 hover:text-[#0f1857] hover:bg-black/5 px-4 py-3 rounded-xl font-semibold transition-all duration-250">About Us</Link>
+          <Link to="/services" onClick={() => setMenuOpen(false)} className="text-[#0f1857]/80 hover:text-[#0f1857] hover:bg-black/5 px-4 py-3 rounded-xl font-semibold transition-all duration-250">Services</Link>
+          
+          {/* Tools Expandable in Mobile */}
+          <div className="flex flex-col">
+            <div className="text-[#0f1857]/50 px-4 pt-4 pb-1 text-xs font-bold uppercase tracking-wider">Tools</div>
+            <Link to="/eligibility-calculator" onClick={() => setMenuOpen(false)} className="text-[#0f1857]/80 hover:text-[#0f1857] hover:bg-black/5 px-4 py-3 rounded-xl font-semibold transition-all duration-250 text-[15px]">
+              Eligibility Calculator
+            </Link>
+            <Link to="/emi-calculator" onClick={() => setMenuOpen(false)} className="text-[#0f1857]/80 hover:text-[#0f1857] hover:bg-black/5 px-4 py-3 rounded-xl font-semibold transition-all duration-250 text-[15px]">
+              EMI Calculator
+            </Link>
+          </div>
+
+          <Link to="/contact" onClick={() => setMenuOpen(false)} className="text-[#0f1857]/80 hover:text-[#0f1857] hover:bg-black/5 px-4 py-3 rounded-xl font-semibold transition-all duration-250">Contact</Link>
           {isContactPage ? (
             <Link to="/upload-documents" onClick={() => setMenuOpen(false)}
               className="mt-3 flex items-center justify-center gap-2 text-white px-5 py-3 rounded-xl font-semibold"

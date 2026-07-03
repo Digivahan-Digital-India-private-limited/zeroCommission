@@ -18,6 +18,8 @@ import SecurityCompliance from './components/SecurityCompliance'
 import ApplicationPortal from './components/ApplicationPortal'
 import PrivacyPolicyPage from './components/PrivacyPolicyPage'
 import TermsConditionsPage from './components/TermsConditionsPage'
+import EmiCalculatorPage from './components/EmiCalculatorPage'
+import EligibilityCalculatorPage from './components/EligibilityCalculatorPage'
 import AdminLogin from './components/AdminLogin'
 import AdminDashboard from './components/AdminDashboard'
 import TotalApplications from './components/TotalApplications'
@@ -147,22 +149,22 @@ function Ticker() {
   ]
 
   return (
-    <div className="relative pt-8 pb-24 overflow-hidden"
+    <div className="relative pt-6 pb-12 md:pt-8 md:pb-24 overflow-hidden"
       style={{ perspective: '1200px', backgroundColor: '#f8f9ff' }}
       onMouseEnter={onEnter} onMouseLeave={onLeave}>
 
       {/* Fade edges matching the body background */}
-      <div className="absolute inset-y-0 left-0 w-56 z-10 pointer-events-none"
+      <div className="absolute inset-y-0 left-0 w-16 md:w-56 z-10 pointer-events-none"
         style={{ background: 'linear-gradient(90deg, #f8f9ff 15%, transparent)' }} />
-      <div className="absolute inset-y-0 right-0 w-56 z-10 pointer-events-none"
+      <div className="absolute inset-y-0 right-0 w-16 md:w-56 z-10 pointer-events-none"
         style={{ background: 'linear-gradient(270deg, #f8f9ff 15%, transparent)' }} />
 
-      <div ref={trackRef} className="flex items-center gap-12 w-max px-6" style={{ transformStyle: 'preserve-3d' }}>
+      <div ref={trackRef} className="flex items-center gap-6 md:gap-12 w-max px-4 md:px-6" style={{ transformStyle: 'preserve-3d' }}>
         {doubled.map((item, i) => {
           const style = cardStyles[i % cardStyles.length];
           const IconComponent = item.icon;
           return (
-            <div key={i} className="tk-card relative flex items-center gap-5 px-10 py-7 rounded-2xl cursor-pointer group hover:z-20 overflow-hidden"
+            <div key={i} className="tk-card relative flex items-center gap-3 md:gap-5 px-6 py-4 md:px-10 md:py-7 rounded-[16px] md:rounded-2xl cursor-pointer group hover:z-20 overflow-hidden"
               style={{
                 background: style.bg,
                 border: '1px solid rgba(255,255,255,0.4)',
@@ -176,13 +178,13 @@ function Ticker() {
               <div className="absolute top-0 left-0 right-0 h-1/2 pointer-events-none"
                 style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.25), transparent)' }} />
 
-              <div className="relative z-10 flex items-center gap-4" style={{ transform: 'translateZ(30px)' }}>
-                <div className="w-14 h-14 rounded-2xl flex items-center justify-center border border-white/40 group-hover:bg-white/35 group-hover:rotate-[360deg] transition-all duration-700 ease-out"
+              <div className="relative z-10 flex items-center gap-3 md:gap-4" style={{ transform: 'translateZ(30px)' }}>
+                <div className="w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl flex items-center justify-center border border-white/40 group-hover:bg-white/35 group-hover:rotate-[360deg] transition-all duration-700 ease-out"
                   style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(5px)', boxShadow: '0 4px 10px rgba(0,0,0,0.08)' }}>
-                  <IconComponent size={24} className="text-white drop-shadow-md" strokeWidth={2.2} />
+                  <IconComponent className="w-5 h-5 md:w-6 md:h-6 text-white drop-shadow-md" strokeWidth={2.2} />
                 </div>
 
-                <span className="font-display text-[18px] font-black tracking-wider uppercase whitespace-nowrap text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)] group-hover:drop-shadow-[0_0_15px_rgba(255,255,255,0.85)] transition-all duration-300">
+                <span className="font-display text-[14px] md:text-[18px] font-black tracking-wider uppercase whitespace-nowrap text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)] group-hover:drop-shadow-[0_0_15px_rgba(255,255,255,0.85)] transition-all duration-300">
                   {item.label}
                 </span>
               </div>
@@ -251,6 +253,8 @@ export default function App() {
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
           <Route path="/terms-conditions" element={<TermsConditionsPage />} />
           <Route path="/upload-documents" element={<ApplicationPortal />} />
+          <Route path="/emi-calculator" element={<EmiCalculatorPage />} />
+          <Route path="/eligibility-calculator" element={<EligibilityCalculatorPage />} />
           <Route path="/page/admin/*" element={
             <AdminProvider>
               <Routes>
