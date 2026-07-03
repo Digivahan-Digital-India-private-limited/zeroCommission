@@ -1,0 +1,20 @@
+[build]
+  publish = "dist"
+  functions = "netlify/functions"
+
+[[redirects]]
+  from = "/api_nextpay/*"
+  to = "https://nextpayindia.com/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api_zerocom/*"
+  to = "https://zerocommissionloan.com/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
