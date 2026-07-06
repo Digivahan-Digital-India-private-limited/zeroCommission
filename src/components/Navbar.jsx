@@ -127,7 +127,7 @@ export default function Navbar() {
             <NavLink href="/about">About Us</NavLink>
             <NavLink href="/services">Services</NavLink>
 
-            {/* Tools Dropdown */}
+            {/* Tools Dropdown
             <div className="relative group">
               <button className="flex items-center gap-1 font-semibold transition-colors duration-200 text-[15px] py-2"
                 style={{ color: '#0f1857cc' }}>
@@ -144,6 +144,7 @@ export default function Navbar() {
                 </div>
               </div>
             </div>
+            */}
 
             <NavLink href="/contact">Contact</NavLink>
           </div>
@@ -185,7 +186,7 @@ export default function Navbar() {
           <Link to="/about" onClick={() => setMenuOpen(false)} className="text-[#0f1857]/80 hover:text-[#0f1857] hover:bg-black/5 px-4 py-3 rounded-xl font-semibold transition-all duration-250">About Us</Link>
           <Link to="/services" onClick={() => setMenuOpen(false)} className="text-[#0f1857]/80 hover:text-[#0f1857] hover:bg-black/5 px-4 py-3 rounded-xl font-semibold transition-all duration-250">Services</Link>
 
-          {/* Tools Expandable in Mobile */}
+          {/* Tools Expandable in Mobile
           <div className="flex flex-col">
             <div className="text-[#0f1857]/50 px-4 pt-4 pb-1 text-xs font-bold uppercase tracking-wider">Tools</div>
             <Link to="/eligibility-calculator" onClick={() => setMenuOpen(false)} className="text-[#0f1857]/80 hover:text-[#0f1857] hover:bg-black/5 px-4 py-3 rounded-xl font-semibold transition-all duration-250 text-[15px]">Eligibility Calculator</Link>
@@ -195,6 +196,7 @@ export default function Navbar() {
             <Link to="/fd-calculator" onClick={() => setMenuOpen(false)} className="text-[#0f1857]/80 hover:text-[#0f1857] hover:bg-black/5 px-4 py-3 rounded-xl font-semibold transition-all duration-250 text-[15px]">FD Calculator</Link>
             <Link to="/gst-calculator" onClick={() => setMenuOpen(false)} className="text-[#0f1857]/80 hover:text-[#0f1857] hover:bg-black/5 px-4 py-3 rounded-xl font-semibold transition-all duration-250 text-[15px]">GST Calculator</Link>
           </div>
+          */}
 
           <Link to="/contact" onClick={() => setMenuOpen(false)} className="text-[#0f1857]/80 hover:text-[#0f1857] hover:bg-black/5 px-4 py-3 rounded-xl font-semibold transition-all duration-250">Contact</Link>
           {isContactPage ? (

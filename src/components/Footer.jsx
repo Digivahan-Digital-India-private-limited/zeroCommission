@@ -262,7 +262,7 @@ export default function Footer() {
             <h4 style={{ color: '#fff', fontSize: 13.5, fontWeight: 700, margin: '0 0 12px' }}>Resources</h4>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 11 }}>
 
-              {/* Nested Collapsible Tools */}
+              {/* Nested Collapsible Tools 
               <li>
                 <button
                   onClick={() => setToolsOpen(!toolsOpen)}
@@ -301,6 +301,7 @@ export default function Footer() {
                   ))}
                 </ul>
               </li>
+              */}
 
               {resourceLinks.map(({ label, href }) => (
                 <li key={label}>

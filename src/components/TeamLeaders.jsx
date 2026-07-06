@@ -8,7 +8,7 @@ import rekhaPhoto from '../assets/rekha.webp'
 import rahulPhoto from '../assets/rahul.webp'
 import sachinPhoto from '../assets/sachin.webp'
 import rehanPhoto from '../assets/rehan.webp'
-import pinkuPhoto from '../assets/pinku.webp'
+import pinkuPhoto from '../assets/ChatGPT Image Jul 3, 2026, 08_21_58 AM.png'
 
 gsap.registerPlugin(ScrollTrigger)
 
