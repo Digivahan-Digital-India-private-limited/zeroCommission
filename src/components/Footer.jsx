@@ -30,6 +30,10 @@ const companyLinks = [
 const toolsLinks = [
   { label: 'Eligibility Calculator', href: '/eligibility-calculator' },
   { label: 'EMI Calculator', href: '/emi-calculator' },
+  { label: 'RD Calculator', href: '/rd-calculator' },
+  { label: 'SIP Calculator', href: '/sip-calculator' },
+  { label: 'FD Calculator', href: '/fd-calculator' },
+  { label: 'GST Calculator', href: '/gst-calculator' },
 ];
 
 const resourceLinks = [
@@ -187,8 +191,11 @@ export default function Footer() {
           {/* Brand — full width on mobile, 3 cols on lg */}
           <div className="col-span-2 lg:col-span-3">
             <img src={logoFull} alt="Zero Commission Logo"
-              className="h-8 md:h-11 object-contain mb-3" />
-            <p style={{ color: 'rgba(255,255,255,0.62)', fontSize: 13, lineHeight: 1.7, margin: '0 0 4px', maxWidth: 210 }}>
+              className="h-6 md:h-8 object-contain mb-1.5" />
+            <p className="text-white/90 font-bold text-[10px] md:text-[11px] mb-3 leading-snug pr-4 tracking-wide">
+              A Unit Of Digivahan Digital India Private Limited <br className="hidden md:block" /><span className="whitespace-nowrap">(CIN U62099DL2023PTC420571)</span>
+            </p>
+            <p style={{ color: 'rgba(255,255,255,0.62)', fontSize: 13, lineHeight: 1.7, margin: '0 0 14px', maxWidth: 210 }}>
               Making loans simple, transparent<br />and accessible for everyone.
             </p>
             <p style={{ color: 'rgba(255,255,255,0.62)', fontSize: 12, fontWeight: 500, margin: '0 0 14px' }}>
@@ -254,7 +261,7 @@ export default function Footer() {
           <div className="col-span-1 lg:col-span-2">
             <h4 style={{ color: '#fff', fontSize: 13.5, fontWeight: 700, margin: '0 0 12px' }}>Resources</h4>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 11 }}>
-              
+
               {/* Nested Collapsible Tools */}
               <li>
                 <button

@@ -13,6 +13,7 @@ import TrustAndProcess from './components/TrustAndProcess'
 import PageLoader from './components/PageLoader'
 import HowItWorks from './components/HowItWorks'
 import WhyChooseUs from './components/WhyChooseUs'
+import Partners from './components/Partners'
 import RequiredDocuments from './components/RequiredDocuments'
 import SecurityCompliance from './components/SecurityCompliance'
 import ApplicationPortal from './components/ApplicationPortal'
@@ -22,6 +23,10 @@ import EmiCalculatorPage from './components/EmiCalculatorPage'
 import EligibilityCalculatorPage from './components/EligibilityCalculatorPage'
 import AdminLogin from './components/AdminLogin'
 import AdminDashboard from './components/AdminDashboard'
+import RdCalculatorPage from './components/RdCalculatorPage'
+import SipCalculatorPage from './components/SipCalculatorPage'
+import FdCalculatorPage from './components/FdCalculatorPage'
+import GstCalculatorPage from './components/GstCalculatorPage'
 import TotalApplications from './components/TotalApplications'
 import ViewApplications from './components/ViewApplications'
 import UnviewedApplications from './components/UnviewedApplications'
@@ -164,7 +169,7 @@ function Ticker() {
           const style = cardStyles[i % cardStyles.length];
           const IconComponent = item.icon;
           return (
-            <div key={i} className="tk-card relative flex items-center gap-3 md:gap-5 px-6 py-4 md:px-10 md:py-7 rounded-[16px] md:rounded-2xl cursor-pointer group hover:z-20 overflow-hidden"
+            <div key={i} className="tk-card relative flex items-center gap-2 md:gap-3 px-4 py-3 md:px-6 md:py-4 rounded-[12px] md:rounded-xl cursor-pointer group hover:z-20 overflow-hidden"
               style={{
                 background: style.bg,
                 border: '1px solid rgba(255,255,255,0.4)',
@@ -178,13 +183,13 @@ function Ticker() {
               <div className="absolute top-0 left-0 right-0 h-1/2 pointer-events-none"
                 style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.25), transparent)' }} />
 
-              <div className="relative z-10 flex items-center gap-3 md:gap-4" style={{ transform: 'translateZ(30px)' }}>
-                <div className="w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl flex items-center justify-center border border-white/40 group-hover:bg-white/35 group-hover:rotate-[360deg] transition-all duration-700 ease-out"
+              <div className="relative z-10 flex items-center gap-2 md:gap-3" style={{ transform: 'translateZ(30px)' }}>
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl flex items-center justify-center border border-white/40 group-hover:bg-white/35 group-hover:rotate-[360deg] transition-all duration-700 ease-out"
                   style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(5px)', boxShadow: '0 4px 10px rgba(0,0,0,0.08)' }}>
-                  <IconComponent className="w-5 h-5 md:w-6 md:h-6 text-white drop-shadow-md" strokeWidth={2.2} />
+                  <IconComponent className="w-4 h-4 md:w-5 md:h-5 text-white drop-shadow-md" strokeWidth={2.2} />
                 </div>
 
-                <span className="font-display text-[14px] md:text-[18px] font-black tracking-wider uppercase whitespace-nowrap text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)] group-hover:drop-shadow-[0_0_15px_rgba(255,255,255,0.85)] transition-all duration-300">
+                <span className="font-display text-[12px] md:text-[14px] font-black tracking-wider uppercase whitespace-nowrap text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)] group-hover:drop-shadow-[0_0_15px_rgba(255,255,255,0.85)] transition-all duration-300">
                   {item.label}
                 </span>
               </div>
@@ -225,6 +230,7 @@ function Home() {
       <EmiCalculator />
       <Ticker />
       <Team />
+      <Partners />
       <WhyChooseUs />
       <RequiredDocuments />
       <HowItWorks />
@@ -255,6 +261,10 @@ export default function App() {
           <Route path="/upload-documents" element={<ApplicationPortal />} />
           <Route path="/emi-calculator" element={<EmiCalculatorPage />} />
           <Route path="/eligibility-calculator" element={<EligibilityCalculatorPage />} />
+          <Route path="/rd-calculator" element={<RdCalculatorPage />} />
+          <Route path="/sip-calculator" element={<SipCalculatorPage />} />
+          <Route path="/fd-calculator" element={<FdCalculatorPage />} />
+          <Route path="/gst-calculator" element={<GstCalculatorPage />} />
           <Route path="/page/admin/*" element={
             <AdminProvider>
               <Routes>

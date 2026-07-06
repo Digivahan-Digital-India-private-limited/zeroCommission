@@ -15,7 +15,7 @@ gsap.registerPlugin(ScrollTrigger)
 const team = [
   {
     name: 'Rehan',
-    title: 'Head of Financial Advisory',
+    title: 'Financial Advisory',
     exp: '8+ Years Exp.',
     desc: 'Leads the advisory team with a strategic vision, ensuring every client gets the most optimized and reliable financial solutions.',
     accent: '#0197E0',
@@ -24,8 +24,18 @@ const team = [
     photo: rehanPhoto,
   },
   {
+    name: 'Sachin Rathor',
+    title: 'Financial Advisor',
+    exp: '3+ Years Exp.',
+    desc: 'Dedicated to providing expert guidance and helping customers secure the best financial solutions tailored to their needs.',
+    accent: '#0197E0',
+    titleColor: '#0176C7',
+    gradientBg: 'linear-gradient(145deg, #cffafe 0%, #e0f2fe 100%)',
+    photo: sachinPhoto,
+  },
+  {
     name: 'Rekha Verma',
-    title: 'Senior Financial Advisor',
+    title: 'Financial Advisor',
     exp: '8+ Years Exp.',
     desc: 'Expert in assessing credit needs and finding the best loan solutions tailored to customer requirements.',
     accent: '#0197E0',
@@ -35,7 +45,7 @@ const team = [
   },
   {
     name: 'Mamta Mehra',
-    title: 'Senior Financial Advisor',
+    title: 'Financial Advisor',
     exp: '8+ Years Exp.',
     desc: 'Focused on delivering seamless loan experiences and providing solutions tailored to every customer\'s needs.',
     accent: '#0197E0',
@@ -45,7 +55,7 @@ const team = [
   },
   {
     name: 'Mohit Tiwari',
-    title: 'Senior Financial Advisor',
+    title: 'Financial Advisor',
     exp: '3+ Years Exp.',
     desc: 'Specializes in creating smart financial strategies and helping customers achieve their goals with the right loan solutions.',
     accent: '#0176C7',
@@ -55,7 +65,7 @@ const team = [
   },
   {
     name: 'Dinesh Raghav',
-    title: 'Senior Financial Advisor',
+    title: 'Financial Advisor',
     exp: '3+ Years Exp.',
     desc: 'Helps customers choose the right financial products with lower interest rates and maximum benefits.',
     accent: '#0176C7',
@@ -65,7 +75,7 @@ const team = [
   },
   {
     name: 'Rahul Chauhan',
-    title: 'Senior Financial Advisor',
+    title: 'Financial Advisor',
     exp: '2+ Years Exp.',
     desc: 'Builds strong partnerships with banks and NBFCs to bring the best offers and solutions for our customers.',
     accent: '#0176C7',
@@ -73,16 +83,7 @@ const team = [
     gradientBg: 'linear-gradient(145deg, #dbeafe 0%, #eff6ff 100%)',
     photo: rahulPhoto,
   },
-  {
-    name: 'Sachin Rathor',
-    title: 'Senior Financial Advisor',
-    exp: '3+ Years Exp.',
-    desc: 'Dedicated to providing expert guidance and helping customers secure the best financial solutions tailored to their needs.',
-    accent: '#0197E0',
-    titleColor: '#0176C7',
-    gradientBg: 'linear-gradient(145deg, #cffafe 0%, #e0f2fe 100%)',
-    photo: sachinPhoto,
-  },
+
   {
     name: 'Pinku Sharma',
     title: 'Technical Support Specialist',

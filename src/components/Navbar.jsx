@@ -116,9 +116,8 @@ export default function Navbar() {
               <img
                 src={logoFull}
                 alt="Zero Commission Logo"
-                className="w-auto object-contain h-8 md:h-[46px]"
+                className="w-auto object-contain h-6 md:h-8"
               />
-            <div className="max-w-[1440px] mx-auto px-4 md:px-10 flex items-center justify-between"></div>
             </div>
           </Link>
 
@@ -134,14 +133,14 @@ export default function Navbar() {
                 style={{ color: '#0f1857cc' }}>
                 Tools <ChevronDown size={14} className="group-hover:rotate-180 transition-transform duration-200" />
               </button>
-              <div className="absolute top-full left-0 w-56 bg-white rounded-xl shadow-xl border border-black/5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-left translate-y-2 group-hover:translate-y-0 overflow-hidden">
+              <div className="absolute top-full left-0 w-60 bg-white rounded-xl shadow-xl border border-black/5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-left translate-y-2 group-hover:translate-y-0 overflow-hidden">
                 <div className="flex flex-col py-2">
-                  <Link to="/eligibility-calculator" className="block px-4 py-2.5 text-sm font-semibold text-[#0f1857]/80 hover:bg-[#f0f6ff] hover:text-[#0176C7] transition-colors">
-                    Eligibility Calculator
-                  </Link>
-                  <Link to="/emi-calculator" className="block px-4 py-2.5 text-sm font-semibold text-[#0f1857]/80 hover:bg-[#f0f6ff] hover:text-[#0176C7] transition-colors">
-                    EMI Calculator
-                  </Link>
+                  <Link to="/eligibility-calculator" className="block px-4 py-2.5 text-sm font-semibold text-[#0f1857]/80 hover:bg-[#f0f6ff] hover:text-[#0176C7] transition-colors">Eligibility Calculator</Link>
+                  <Link to="/emi-calculator" className="block px-4 py-2.5 text-sm font-semibold text-[#0f1857]/80 hover:bg-[#f0f6ff] hover:text-[#0176C7] transition-colors">EMI Calculator</Link>
+                  <Link to="/rd-calculator" className="block px-4 py-2.5 text-sm font-semibold text-[#0f1857]/80 hover:bg-[#f0f6ff] hover:text-[#0176C7] transition-colors">RD Calculator</Link>
+                  <Link to="/sip-calculator" className="block px-4 py-2.5 text-sm font-semibold text-[#0f1857]/80 hover:bg-[#f0f6ff] hover:text-[#0176C7] transition-colors">SIP Calculator</Link>
+                  <Link to="/fd-calculator" className="block px-4 py-2.5 text-sm font-semibold text-[#0f1857]/80 hover:bg-[#f0f6ff] hover:text-[#0176C7] transition-colors">FD Calculator</Link>
+                  <Link to="/gst-calculator" className="block px-4 py-2.5 text-sm font-semibold text-[#0f1857]/80 hover:bg-[#f0f6ff] hover:text-[#0176C7] transition-colors">GST Calculator</Link>
                 </div>
               </div>
             </div>
@@ -153,15 +152,15 @@ export default function Navbar() {
           <div className="flex items-center gap-4">
             {isContactPage ? (
               <Link to="/upload-documents"
-                className="hidden md:flex items-center gap-1.5 text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:scale-105 active:scale-95 transition-all duration-200"
+                className="hidden md:flex items-center gap-1.5 text-white px-4 py-2 rounded-full text-xs font-semibold hover:scale-105 active:scale-95 transition-all duration-200 tracking-wide"
                 style={{ background: 'linear-gradient(135deg, #0176C7, #0155AD)', boxShadow: '0 4px 15px rgba(1,118,199,0.3)' }}>
-                <Upload size={14} /> Upload Documents
+                <Upload size={12} /> Upload Documents
               </Link>
             ) : (
               <button onClick={() => setIsExpertModalOpen(true)}
-                className="hidden md:flex items-center gap-1.5 text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:scale-105 active:scale-95 transition-all duration-200"
+                className="hidden md:flex items-center gap-1.5 text-white px-4 py-2 rounded-full text-xs font-semibold hover:scale-105 active:scale-95 transition-all duration-200 tracking-wide"
                 style={{ background: 'linear-gradient(135deg, #0176C7, #0155AD)', boxShadow: '0 4px 15px rgba(1,118,199,0.3)' }}>
-                Connect to Expert <ChevronRight size={14} />
+                Connect to Expert <ChevronRight size={12} />
               </button>
             )}
             <button onClick={() => setMenuOpen(!menuOpen)}
@@ -185,16 +184,16 @@ export default function Navbar() {
           <Link to="/" onClick={() => setMenuOpen(false)} className="text-[#0f1857]/80 hover:text-[#0f1857] hover:bg-black/5 px-4 py-3 rounded-xl font-semibold transition-all duration-250">Home</Link>
           <Link to="/about" onClick={() => setMenuOpen(false)} className="text-[#0f1857]/80 hover:text-[#0f1857] hover:bg-black/5 px-4 py-3 rounded-xl font-semibold transition-all duration-250">About Us</Link>
           <Link to="/services" onClick={() => setMenuOpen(false)} className="text-[#0f1857]/80 hover:text-[#0f1857] hover:bg-black/5 px-4 py-3 rounded-xl font-semibold transition-all duration-250">Services</Link>
-          
+
           {/* Tools Expandable in Mobile */}
           <div className="flex flex-col">
             <div className="text-[#0f1857]/50 px-4 pt-4 pb-1 text-xs font-bold uppercase tracking-wider">Tools</div>
-            <Link to="/eligibility-calculator" onClick={() => setMenuOpen(false)} className="text-[#0f1857]/80 hover:text-[#0f1857] hover:bg-black/5 px-4 py-3 rounded-xl font-semibold transition-all duration-250 text-[15px]">
-              Eligibility Calculator
-            </Link>
-            <Link to="/emi-calculator" onClick={() => setMenuOpen(false)} className="text-[#0f1857]/80 hover:text-[#0f1857] hover:bg-black/5 px-4 py-3 rounded-xl font-semibold transition-all duration-250 text-[15px]">
-              EMI Calculator
-            </Link>
+            <Link to="/eligibility-calculator" onClick={() => setMenuOpen(false)} className="text-[#0f1857]/80 hover:text-[#0f1857] hover:bg-black/5 px-4 py-3 rounded-xl font-semibold transition-all duration-250 text-[15px]">Eligibility Calculator</Link>
+            <Link to="/emi-calculator" onClick={() => setMenuOpen(false)} className="text-[#0f1857]/80 hover:text-[#0f1857] hover:bg-black/5 px-4 py-3 rounded-xl font-semibold transition-all duration-250 text-[15px]">EMI Calculator</Link>
+            <Link to="/rd-calculator" onClick={() => setMenuOpen(false)} className="text-[#0f1857]/80 hover:text-[#0f1857] hover:bg-black/5 px-4 py-3 rounded-xl font-semibold transition-all duration-250 text-[15px]">RD Calculator</Link>
+            <Link to="/sip-calculator" onClick={() => setMenuOpen(false)} className="text-[#0f1857]/80 hover:text-[#0f1857] hover:bg-black/5 px-4 py-3 rounded-xl font-semibold transition-all duration-250 text-[15px]">SIP Calculator</Link>
+            <Link to="/fd-calculator" onClick={() => setMenuOpen(false)} className="text-[#0f1857]/80 hover:text-[#0f1857] hover:bg-black/5 px-4 py-3 rounded-xl font-semibold transition-all duration-250 text-[15px]">FD Calculator</Link>
+            <Link to="/gst-calculator" onClick={() => setMenuOpen(false)} className="text-[#0f1857]/80 hover:text-[#0f1857] hover:bg-black/5 px-4 py-3 rounded-xl font-semibold transition-all duration-250 text-[15px]">GST Calculator</Link>
           </div>
 
           <Link to="/contact" onClick={() => setMenuOpen(false)} className="text-[#0f1857]/80 hover:text-[#0f1857] hover:bg-black/5 px-4 py-3 rounded-xl font-semibold transition-all duration-250">Contact</Link>
