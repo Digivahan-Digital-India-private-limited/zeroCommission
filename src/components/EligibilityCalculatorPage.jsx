@@ -266,11 +266,39 @@ const defaultScenarios = [
   }
 ]
 
+/* ── Loan type config ─────────────── */
+const LOAN_TYPES = ['Personal Loan', 'Home Loan', 'Property Loan', 'Car Loan / Auto Loan', 'Two Wheeler Loan', 'Consumer Loan', 'Gold Loan', 'Credit Card', 'Other']
+const LOAN_STATUS_OPTIONS = ['Live', 'BT', 'Proposed Closure', 'Closed']
+
+const LOAN_TYPE_STYLE = {
+  'Personal Loan': { bg: '#ede9fe', color: '#7c3aed', Icon: 'User' },
+  'Home Loan': { bg: '#dbeafe', color: '#1d4ed8', Icon: 'Home' },
+  'Property Loan': { bg: '#ede9fe', color: '#6d28d9', Icon: 'Building2' },
+  'Car Loan / Auto Loan': { bg: '#ffedd5', color: '#c2410c', Icon: 'Car' },
+  'Two Wheeler Loan': { bg: '#dcfce7', color: '#16a34a', Icon: 'Bike' },
+  'Consumer Loan': { bg: '#ccfbf1', color: '#0f766e', Icon: 'ShoppingCart' },
+  'Gold Loan': { bg: '#fef9c3', color: '#b45309', Icon: 'Medal' },
+  'Credit Card': { bg: '#fee2e2', color: '#dc2626', Icon: 'CreditCard' },
+  'Other': { bg: '#f1f5f9', color: '#475569', Icon: 'ListTodo' },
+}
+
+const STATUS_STYLE = {
+  'Live': { bg: '#dcfce7', color: '#16a34a' },
+  'BT': { bg: '#ffedd5', color: '#c2410c' },
+  'Proposed Closure': { bg: '#e0e7ff', color: '#4338ca' },
+  'Closed': { bg: '#f1f5f9', color: '#64748b' },
+}
+
 /* ── Compute derived values ─────────────── */
 function computeValues(s) {
   const tenureMonths = s.tenureMode === 'Yr' ? s.tenureVal * 12 : s.tenureVal
-  const totalLoanEmi = s.personalLoan + s.homeLoan + s.carLoan + s.twoWheeler + s.consumerLoan + s.goldLoan + s.otherEmi
-  const ccObligation = Math.round(s.ccOutstanding * 0.05)
+  // Support override from new loans array, fall back to legacy individual fields
+  const totalLoanEmi = s.totalLoanEmiOverride !== undefined
+    ? s.totalLoanEmiOverride
+    : ((s.personalLoan || 0) + (s.homeLoan || 0) + (s.carLoan || 0) + (s.twoWheeler || 0) + (s.consumerLoan || 0) + (s.goldLoan || 0) + (s.otherEmi || 0))
+  const ccObligation = s.ccObligationOverride !== undefined
+    ? s.ccObligationOverride
+    : Math.round((s.ccOutstanding || 0) * 0.05)
   const totalEmiObligation = totalLoanEmi + ccObligation
   const allowedEmi = Math.round(s.monthlyIncome * s.foirPct / 100)
   const eligibleEmi = Math.max(0, allowedEmi - totalEmiObligation)
@@ -278,11 +306,14 @@ function computeValues(s) {
   const emi = calcEMI(eligibleLoan, s.roi, tenureMonths)
   const totalRepayment = Math.round(emi * tenureMonths)
   const totalInterest = Math.max(0, totalRepayment - eligibleLoan)
-  const procFeeAmt = Math.round(eligibleLoan * s.procFee / 100)
+  const procFee = s.procFee !== undefined ? s.procFee : 1.0
+  const insurance = s.insurance !== undefined ? s.insurance : 0.5
+  const fixedMisc = s.fixedMisc !== undefined ? s.fixedMisc : 2500
+  const procFeeAmt = Math.round(eligibleLoan * procFee / 100)
   const gstOnProc = Math.round(procFeeAmt * 0.18)
-  const insuranceAmt = Math.round(eligibleLoan * s.insurance / 100)
-  const netDisbursed = eligibleLoan - procFeeAmt - gstOnProc - insuranceAmt - s.fixedMisc
-  const btOutstanding = s.plOutstanding + s.ccDebtOutstanding
+  const insuranceAmt = Math.round(eligibleLoan * insurance / 100)
+  const netDisbursed = eligibleLoan - procFeeAmt - gstOnProc - insuranceAmt - fixedMisc
+  const btOutstanding = (s.plOutstanding || 0) + (s.ccDebtOutstanding || 0)
   const btNetDisbursal = eligibleLoan - btOutstanding
   const netFoir = s.monthlyIncome > 0 ? Math.round(((totalEmiObligation + eligibleEmi) / s.monthlyIncome) * 100) : 0
   const schedule = buildSchedule(eligibleLoan, s.roi, tenureMonths)
@@ -320,35 +351,68 @@ export default function EligibilityCalculatorPage() {
   /* Calculator Fields */
   const [customerName, setCustomerName] = useState('')
   const [monthlyIncome, setIncome] = useState(100000)
-  const [foirPct, setFoir] = useState(50)
+  const [foirPct, setFoir] = useState(75)
   const [roi, setRoi] = useState(9.5)
   const [tenureMode, setTenureMode] = useState('Mo')
   const [tenureVal, setTenureVal] = useState(120)
-  const [personalLoan, setPersonalLoan] = useState(0)
-  const [homeLoan, setHomeLoan] = useState(0)
-  const [carLoan, setCarLoan] = useState(0)
-  const [twoWheeler, setTwoWheeler] = useState(0)
-  const [consumerLoan, setConsumerLoan] = useState(0)
-  const [goldLoan, setGoldLoan] = useState(0)
-  const [otherEmi, setOtherEmi] = useState(0)
-  const [ccOutstanding, setCcOutstanding] = useState(0)
-  const [procFee, setProcFee] = useState(1.0)
-  const [insurance, setInsurance] = useState(0.5)
-  const [fixedMisc, setFixedMisc] = useState(2500)
   const [plOutstanding, setPlOutstanding] = useState(0)
   const [ccDebtOutstanding, setCcDebtOutstanding] = useState(0)
+
+  /* My Loans state */
+  const [loans, setLoans] = useState([])
+  const [showLoanForm, setShowLoanForm] = useState(false)
+  const [loanMenuId, setLoanMenuId] = useState(null)
+  const [showAllLoans, setShowAllLoans] = useState(false)
+  const [editLoanId, setEditLoanId] = useState(null)
+  const [loanSort, setLoanSort] = useState('recent')
+  const emptyLoanForm = useRef({ loanType: '', loanAmount: '', outstanding: '', declaredEmi: '', financerName: '', status: '' }).current
+  const [loanFormData, setLoanFormData] = useState(() => ({ ...emptyLoanForm }))
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    if (!loanMenuId) return
+    const handler = (e) => {
+      if (e.target.closest('.loan-menu-container') || e.target.closest('.loan-menu-trigger')) {
+        return
+      }
+      setLoanMenuId(null)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [loanMenuId])
+
+  useEffect(() => {
+    if (monthlyIncome <= 25000) {
+      setFoir(50)
+    } else if (monthlyIncome <= 50000) {
+      setFoir(60)
+    } else if (monthlyIncome < 75000) {
+      setFoir(70)
+    } else {
+      setFoir(75)
+    }
+  }, [monthlyIncome])
 
   /* Schedule state */
   const [searchMonth, setSearchMonth] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const PAGE_SIZE = 12
 
+  /* Derived from loans */
+  const totalLoanEmiOverride = useMemo(() => loans.reduce((sum, l) => sum + (Number(l.declaredEmi) || 0), 0), [loans])
+  const ccObligationOverride = 0
+  const procFee = 1.0
+  const insurance = 0.5
+  const fixedMisc = 2500
+
   /* Current scenario object */
   const currentState = {
     tenureMode, tenureVal, monthlyIncome, foirPct, roi,
-    personalLoan, homeLoan, carLoan, twoWheeler, consumerLoan,
-    goldLoan, otherEmi, ccOutstanding, procFee, insurance, fixedMisc,
-    plOutstanding, ccDebtOutstanding
+    procFee, insurance, fixedMisc,
+    plOutstanding, ccDebtOutstanding,
+    totalLoanEmiOverride,
+    ccObligationOverride,
+    loans
   }
 
   const {
@@ -358,9 +422,7 @@ export default function EligibilityCalculatorPage() {
     btOutstanding, btNetDisbursal, netFoir, schedule
   } = useMemo(() => computeValues(currentState), [
     monthlyIncome, foirPct, roi, tenureMode, tenureVal,
-    personalLoan, homeLoan, carLoan, twoWheeler, consumerLoan,
-    goldLoan, otherEmi, ccOutstanding, procFee, insurance, fixedMisc,
-    plOutstanding, ccDebtOutstanding
+    plOutstanding, ccDebtOutstanding, totalLoanEmiOverride
   ])
 
   /* Schedule pagination */
@@ -397,19 +459,9 @@ export default function EligibilityCalculatorPage() {
     setRoi(sc.roi)
     setTenureMode(sc.tenureMode)
     setTenureVal(sc.tenureVal)
-    setPersonalLoan(sc.personalLoan)
-    setHomeLoan(sc.homeLoan)
-    setCarLoan(sc.carLoan)
-    setTwoWheeler(sc.twoWheeler)
-    setConsumerLoan(sc.consumerLoan)
-    setGoldLoan(sc.goldLoan)
-    setOtherEmi(sc.otherEmi)
-    setCcOutstanding(sc.ccOutstanding)
-    setProcFee(sc.procFee)
-    setInsurance(sc.insurance)
-    setFixedMisc(sc.fixedMisc)
-    setPlOutstanding(sc.plOutstanding)
-    setCcDebtOutstanding(sc.ccDebtOutstanding)
+    setLoans(sc.loans || [])
+    setPlOutstanding(sc.plOutstanding || 0)
+    setCcDebtOutstanding(sc.ccDebtOutstanding || 0)
     setActiveTab('calculator')
   }
   const cloneScenario = (sc) => setScenarios(prev => [{ ...sc, id: `sc-${Date.now()}`, customerName: `${sc.customerName} (Copy)`, date: new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) }, ...prev])
@@ -419,13 +471,39 @@ export default function EligibilityCalculatorPage() {
   }
   const clearAll = () => { localStorage.removeItem('finflex_scenarios'); setScenarios(defaultScenarios) }
   const resetCalculator = () => {
-    setCustomerName(''); setIncome(100000); setFoir(50); setRoi(9.5)
+    setCustomerName(''); setIncome(100000); setFoir(75); setRoi(9.5)
     setTenureMode('Mo'); setTenureVal(120)
-    setPersonalLoan(0); setHomeLoan(0); setCarLoan(0); setTwoWheeler(0)
-    setConsumerLoan(0); setGoldLoan(0); setOtherEmi(0); setCcOutstanding(0)
-    setProcFee(1.0); setInsurance(0.5); setFixedMisc(2500)
+    setLoans([]); setLoanFormData(emptyLoanForm); setShowLoanForm(false)
     setPlOutstanding(0); setCcDebtOutstanding(0)
   }
+
+  /* Loan helpers */
+  const getLoanTypeIcon = (loanType) => {
+    const style = LOAN_TYPE_STYLE[loanType] || LOAN_TYPE_STYLE['Other']
+    const icons = { User, Home, Building2, Car, Bike, ShoppingCart, Medal, CreditCard, ListTodo }
+    return { Icon: icons[style.Icon] || ListTodo, bg: style.bg, color: style.color }
+  }
+  const addLoan = () => {
+    if (!loanFormData.loanType || !loanFormData.declaredEmi) return
+    if (editLoanId) {
+      setLoans(prev => prev.map(l => l.id === editLoanId ? { ...loanFormData, id: editLoanId } : l))
+      setEditLoanId(null)
+    } else {
+      setLoans(prev => [{ ...loanFormData, id: `loan-${Date.now()}` }, ...prev])
+    }
+    setLoanFormData(emptyLoanForm)
+    setShowLoanForm(false)
+  }
+  const deleteLoan = (id) => { setLoans(prev => prev.filter(l => l.id !== id)); setLoanMenuId(null) }
+  const editLoan = (loan) => { setLoanFormData({ ...loan }); setEditLoanId(loan.id); setShowLoanForm(true); setLoanMenuId(null) }
+  const sortedLoans = useMemo(() => {
+    const list = [...loans]
+    if (loanSort === 'emi_high') return list.sort((a, b) => (Number(b.declaredEmi) || 0) - (Number(a.declaredEmi) || 0))
+    if (loanSort === 'emi_low') return list.sort((a, b) => (Number(a.declaredEmi) || 0) - (Number(b.declaredEmi) || 0))
+    if (loanSort === 'type') return list.sort((a, b) => a.loanType.localeCompare(b.loanType))
+    return list // recently added
+  }, [loans, loanSort])
+  const visibleLoans = showAllLoans ? sortedLoans : sortedLoans.slice(0, 4)
 
   /* Filtered + sorted scenarios */
   const filteredScenarios = useMemo(() => {
@@ -600,7 +678,6 @@ export default function EligibilityCalculatorPage() {
                       ['Total Credit Card BT Outstanding', fmt(ccDebtOutstanding), false],
                       ['Total Balance Transfer Outstanding', fmt(btOutstanding), false],
                       ['Balance Transfer Eligible Amount', fmt(eligibleLoan), true],
-                      [`Processing Fee (${procFee}%)`, fmt(procFeeAmt), false],
                       ['GST (18%)', fmt(gstOnProc), false],
                       ['Insurance', fmt(insuranceAmt), false],
                       ['Miscellaneous Charges', fmt(fixedMisc), false],
@@ -878,10 +955,10 @@ export default function EligibilityCalculatorPage() {
                           <label className="text-xs font-black uppercase tracking-wider text-slate-750 flex items-center gap-1"><Percent size={12} className="text-[#0176C7]" /> Allowed FOIR (%)</label>
                           <span className="text-sm font-black text-[#0176C7]">{foirPct}%</span>
                         </div>
-                        <NumField value={foirPct} onChange={v => setFoir(Math.min(100, Math.max(0, v)))} />
-                        <input type="range" min="10" max="70" step="1" value={foirPct} onChange={e => setFoir(Number(e.target.value))}
-                          className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#0176C7] mt-3" />
-                        <div className="flex justify-between text-[11px] text-slate-500 mt-1 font-bold"><span>10%</span><span>70%</span></div>
+                        <input type="text" readOnly value={foirPct}
+                          className="w-full bg-[#f1f5f9] border border-[#e2e8f0] rounded-xl px-4 py-3 text-[#94a3b8] font-bold text-[15px] outline-none cursor-not-allowed transition-all"
+                        />
+                        <div className="text-[11px] text-[#0176C7] mt-2 font-bold bg-[#e8f0fe] px-2 py-1 rounded-md inline-block">Auto-calculated based on income</div>
                       </div>
                     </div>
 
@@ -921,73 +998,231 @@ export default function EligibilityCalculatorPage() {
                     </div>
                   </div>
 
-                  {/* Active Obligations */}
-                  <div className="bg-white rounded-2xl border border-[#e8edf5] p-5 md:p-7" style={{ boxShadow: '0 8px 30px rgba(15,24,87,0.05)' }}>
-                    <SectionTitle icon={<ListTodo size={15} />} className="mb-5">Active Obligations & Liabilities</SectionTitle>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
-                      <StepField label="Personal Loan EMI" icon={<Building2 size={11} />} value={personalLoan} onChange={setPersonalLoan} />
-                      <StepField label="Home Loan EMI" icon={<Home size={11} />} value={homeLoan} onChange={setHomeLoan} />
-                      <StepField label="Car Loan EMI" icon={<Car size={11} />} value={carLoan} onChange={setCarLoan} />
-                      <StepField label="Two Wheeler Loan EMI" icon={<Bike size={11} />} value={twoWheeler} onChange={setTwoWheeler} />
-                      <StepField label="Consumer Loan EMI" icon={<ShoppingCart size={11} />} value={consumerLoan} onChange={setConsumerLoan} />
-                      <StepField label="Gold Loan EMI" icon={<Medal size={11} />} value={goldLoan} onChange={setGoldLoan} />
-                      <StepField label="Other EMI" icon={<ListTodo size={11} />} value={otherEmi} onChange={setOtherEmi} />
-                    </div>
+                  {/* ── MY LOANS CARD ── */}
+                  <div className="bg-white rounded-2xl border border-[#e8edf5]" style={{ boxShadow: '0 8px 30px rgba(15,24,87,0.05)' }}>
 
-                    {/* Credit Card */}
-                    <div className="mt-6 pt-5 border-t border-[#f0f2fb]">
-                      <div className="flex items-center gap-2 mb-2">
-                        <CreditCard size={14} className="text-[#ef4444]" />
-                        <span className="text-xs font-black uppercase tracking-wider text-[#0f1857]">Credit Card Outstanding</span>
-                      </div>
-                      <p className="text-xs text-slate-600 mb-3 font-semibold">Enter full outstanding balance. 5% monthly obligation auto-calculated.</p>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                        <div>
-                          <label className="text-xs font-black uppercase tracking-wider text-slate-750 mb-2 block">Outstanding Amount (₹)</label>
-                          <NumField value={ccOutstanding} onChange={setCcOutstanding} />
+                    {/* Card Header */}
+                    <div className="flex items-start justify-between p-5 md:p-6 pb-4 border-b border-[#f1f5f9]">
+                      <div>
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <CreditCard size={16} className="text-[#0176C7]" />
+                          <h3 className="font-black text-[#0f1857] text-[15px]">My Loans</h3>
                         </div>
-                        <div>
-                          <label className="text-xs font-black uppercase tracking-wider text-slate-750 mb-2 block">Calculated 5% Obligation</label>
-                          <div className="bg-[#f0f6ff] border border-[#dbeafe] rounded-xl px-4 py-3 text-[#0176C7] font-bold text-[15px]">{fmt(ccObligation)}</div>
+                        <p className="text-xs text-slate-500 font-semibold">Add and manage all your loan obligations</p>
+                      </div>
+                      <button onClick={() => { setShowLoanForm(true); setEditLoanId(null); setLoanFormData(emptyLoanForm) }}
+                        className="flex items-center gap-1.5 px-4 py-2 text-xs font-black text-white rounded-xl transition-all cursor-pointer shadow-sm hover:opacity-90 flex-shrink-0"
+                        style={{ background: '#0176C7' }}>
+                        <Plus size={13} /> Add Loan
+                      </button>
+                    </div>
+
+                    {/* Add / Edit Form */}
+                    {showLoanForm && (
+                      <div className="p-5 md:p-6 border-b border-[#f1f5f9] bg-[#f8f9ff]">
+                        <div className="flex items-center gap-2 mb-4">
+                          <CreditCard size={14} className="text-[#0176C7]" />
+                          <span className="text-sm font-black text-[#0f1857]">{editLoanId ? 'Edit Loan' : 'Add New Loan'}</span>
+                        </div>
+
+                        {/* Row 1 */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                          <div>
+                            <label className="text-[11px] font-black uppercase tracking-wider text-slate-600 mb-1.5 block">Loan Type</label>
+                            <div className="relative">
+                              <select value={loanFormData.loanType} onChange={e => setLoanFormData(p => ({ ...p, loanType: e.target.value }))}
+                                className="w-full bg-white border border-[#e2e8f0] rounded-xl px-3 py-2.5 text-[#0f1857] font-bold text-sm outline-none focus:border-[#0176C7] transition-all appearance-none cursor-pointer pr-8">
+                                <option value="">Select Loan Type</option>
+                                {LOAN_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                              </select>
+                              <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                            </div>
+                          </div>
+                          <div>
+                            <label className="text-[11px] font-black uppercase tracking-wider text-slate-600 mb-1.5 block">Loan Amount (₹)</label>
+                            <input type="text" inputMode="numeric" placeholder="Enter loan amount"
+                              value={loanFormData.loanAmount}
+                              onChange={e => setLoanFormData(p => ({ ...p, loanAmount: e.target.value.replace(/[^0-9]/g, '') }))}
+                              className="w-full bg-white border border-[#e2e8f0] rounded-xl px-3 py-2.5 text-[#0f1857] font-bold text-sm outline-none focus:border-[#0176C7] transition-all" />
+                          </div>
+                          <div>
+                            <label className="text-[11px] font-black uppercase tracking-wider text-slate-600 mb-1.5 block">Outstanding (₹)</label>
+                            <input type="text" inputMode="numeric" placeholder="Enter outstanding amount"
+                              value={loanFormData.outstanding}
+                              onChange={e => setLoanFormData(p => ({ ...p, outstanding: e.target.value.replace(/[^0-9]/g, '') }))}
+                              className="w-full bg-white border border-[#e2e8f0] rounded-xl px-3 py-2.5 text-[#0f1857] font-bold text-sm outline-none focus:border-[#0176C7] transition-all" />
+                          </div>
+                          <div>
+                            <label className="text-[11px] font-black uppercase tracking-wider text-slate-600 mb-1.5 block">Declared EMI (₹)</label>
+                            <input type="text" inputMode="numeric" placeholder="Enter declared EMI"
+                              value={loanFormData.declaredEmi}
+                              onChange={e => setLoanFormData(p => ({ ...p, declaredEmi: e.target.value.replace(/[^0-9]/g, '') }))}
+                              className="w-full bg-white border border-[#e2e8f0] rounded-xl px-3 py-2.5 text-[#0f1857] font-bold text-sm outline-none focus:border-[#0176C7] transition-all" />
+                          </div>
+                        </div>
+
+                        {/* Row 2 */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+                          <div>
+                            <label className="text-[11px] font-black uppercase tracking-wider text-slate-600 mb-1.5 block">Financer Name</label>
+                            <input type="text" placeholder="Enter financer name"
+                              value={loanFormData.financerName}
+                              onChange={e => setLoanFormData(p => ({ ...p, financerName: e.target.value.toUpperCase() }))}
+                              className="w-full bg-white border border-[#e2e8f0] rounded-xl px-3 py-2.5 text-[#0f1857] font-bold text-sm outline-none focus:border-[#0176C7] transition-all" />
+                          </div>
+                          <div>
+                            <label className="text-[11px] font-black uppercase tracking-wider text-slate-600 mb-1.5 block">Status</label>
+                            <div className="relative">
+                              <select value={loanFormData.status} onChange={e => setLoanFormData(p => ({ ...p, status: e.target.value }))}
+                                className="w-full bg-white border border-[#e2e8f0] rounded-xl px-3 py-2.5 text-[#0f1857] font-bold text-sm outline-none focus:border-[#0176C7] transition-all appearance-none cursor-pointer pr-8">
+                                <option value="">Select Status</option>
+                                {LOAN_STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+                              </select>
+                              <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Form Actions */}
+                        <div className="flex items-center justify-end gap-3">
+                          <button onClick={() => {
+                            if (editLoanId) { setShowLoanForm(false); setEditLoanId(null); }
+                            setLoanFormData(emptyLoanForm)
+                          }}
+                            className="px-5 py-2 text-xs font-black border border-slate-300 text-slate-600 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer">
+                            {editLoanId ? 'Cancel' : 'Reset'}
+                          </button>
+                          <button onClick={addLoan} disabled={!loanFormData.loanType || !loanFormData.declaredEmi}
+                            className="px-6 py-2 text-xs font-black text-white rounded-xl transition-all cursor-pointer shadow-sm hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
+                            style={{ background: '#0176C7' }}>
+                            {editLoanId ? 'Update Loan' : 'Add Loan'}
+                          </button>
                         </div>
                       </div>
-                      <div className="flex justify-between mt-3 text-sm">
-                        <span className="text-slate-600 font-bold uppercase tracking-wider">Total EMI Obligations</span>
-                        <span className="text-[#0f1857] font-black">{fmt(totalEmiObligation)}</span>
-                      </div>
-                    </div>
+                    )}
 
-                    {/* Totals */}
-                    <div className="mt-4 pt-4 border-t border-[#f0f2fb] grid grid-cols-2 gap-3">
-                      <div className="bg-[#f8f9ff] rounded-xl p-3 border border-[#e8edf5]">
-                        <div className="text-xs font-black uppercase tracking-wider text-slate-750 mb-1">Total Loan EMI</div>
-                        <div className="font-black text-[#0176C7] text-sm">{fmt(totalLoanEmi)}</div>
+                    {/* Loans List */}
+                    <div className="p-5 md:p-6">
+                      <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+                        <div className="flex items-center gap-2">
+                          <ListTodo size={14} className="text-[#0176C7]" />
+                          <span className="font-black text-[#0f1857] text-sm">Your Loans ({loans.length})</span>
+                        </div>
+                        {loans.length > 0 && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold text-slate-500">Sort by:</span>
+                            <div className="relative">
+                              <select value={loanSort} onChange={e => setLoanSort(e.target.value)}
+                                className="text-xs font-bold bg-[#f8f9ff] border border-[#e2e8f0] rounded-lg px-3 py-1.5 text-[#0f1857] outline-none focus:border-[#0176C7] appearance-none cursor-pointer pr-7">
+                                <option value="recent">Recently Added</option>
+                                <option value="emi_high">EMI: High to Low</option>
+                                <option value="emi_low">EMI: Low to High</option>
+                                <option value="type">Loan Type</option>
+                              </select>
+                              <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                            </div>
+                          </div>
+                        )}
                       </div>
-                      <div className="bg-[#f8f9ff] rounded-xl p-3 border border-[#e8edf5]">
-                        <div className="text-xs font-black uppercase tracking-wider text-slate-750 mb-1">Total EMI Obligation</div>
-                        <div className="font-black text-[#0176C7] text-sm">{fmt(totalEmiObligation)}</div>
-                      </div>
-                    </div>
-                  </div>
 
-                  {/* Fee & Processing */}
-                  <div className="bg-white rounded-2xl border border-[#e8edf5] p-5 md:p-7" style={{ boxShadow: '0 8px 30px rgba(15,24,87,0.05)' }}>
-                    <SectionTitle icon={<SlidersHorizontal size={15} />} className="mb-5">
-                      Fee & Processing Parameters <span className="text-slate-500 normal-case text-xs font-medium">(optional)</span>
-                    </SectionTitle>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      <div>
-                        <label className="text-xs font-black uppercase tracking-wider text-slate-750 mb-2 block flex items-center gap-1"><Percent size={12} className="text-[#0176C7]" /> Proc. Fee (%)</label>
-                        <NumField value={procFee} onChange={setProcFee} />
+                      {/* Empty state */}
+                      {loans.length === 0 && (
+                        <div className="text-center py-10 text-slate-400">
+                          <CreditCard size={32} className="mx-auto mb-3 opacity-30" />
+                          <p className="text-sm font-semibold">No loans added yet</p>
+                          <p className="text-xs mt-1">Click "+ Add Loan" to add your loan obligations</p>
+                        </div>
+                      )}
+
+                      {/* Loan rows */}
+                      <div className="space-y-0 divide-y divide-[#f1f5f9]">
+                        {visibleLoans.map(loan => {
+                          const { Icon, bg, color } = getLoanTypeIcon(loan.loanType)
+                          const statusStyle = STATUS_STYLE[loan.status] || STATUS_STYLE['Live']
+                          return (
+                            <div key={loan.id} className="flex items-center gap-3 py-4 relative group">
+                              {/* Icon */}
+                              <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: bg }}>
+                                <Icon size={16} style={{ color }} />
+                              </div>
+                              {/* Name + Financer */}
+                              <div className="flex-1 min-w-0">
+                                <div className="font-black text-[#0f1857] text-sm leading-tight truncate">{loan.loanType}</div>
+                                {loan.financerName && <div className="text-xs text-slate-500 font-semibold truncate mt-0.5">{loan.financerName}</div>}
+                              </div>
+                              {/* Details - responsive grid */}
+                              <div className="hidden sm:flex items-center gap-6 text-xs">
+                                {loan.loanAmount && (
+                                  <div>
+                                    <div className="text-slate-500 font-medium mb-1">Loan Amount</div>
+                                    <div className="font-black text-[#0f1857] mt-0.5">{fmt(Number(loan.loanAmount))}</div>
+                                  </div>
+                                )}
+                                {loan.outstanding && (
+                                  <div>
+                                    <div className="text-slate-500 font-medium mb-1">Outstanding</div>
+                                    <div className="font-black text-[#0f1857] mt-0.5">{fmt(Number(loan.outstanding))}</div>
+                                  </div>
+                                )}
+                                <div>
+                                  <div className="text-slate-500 font-medium mb-1">Declared EMI</div>
+                                  <div className="font-black text-[#0f1857] mt-0.5">{fmt(Number(loan.declaredEmi))}</div>
+                                </div>
+                                {loan.status && (
+                                  <div>
+                                    <div className="text-slate-500 font-medium mb-1">Status</div>
+                                    <span className="inline-block mt-0.5 px-2 py-0.5 rounded-full text-[10px] font-black" style={{ background: statusStyle.bg, color: statusStyle.color }}>{loan.status}</span>
+                                  </div>
+                                )}
+                              </div>
+                              {/* Mobile: just show EMI + status */}
+                              <div className="flex sm:hidden flex-col items-end gap-1">
+                                <div className="font-black text-[#0176C7] text-sm">{fmt(Number(loan.declaredEmi))}</div>
+                                {loan.status && <span className="px-2 py-0.5 rounded-full text-[10px] font-black" style={{ background: statusStyle.bg, color: statusStyle.color }}>{loan.status}</span>}
+                              </div>
+                              {/* 3-dot menu */}
+                              <div className="relative flex-shrink-0">
+                                <button onClick={() => setLoanMenuId(loanMenuId === loan.id ? null : loan.id)}
+                                  className="loan-menu-trigger w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-100 transition-colors cursor-pointer text-slate-400">
+                                  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="3" r="1.5" /><circle cx="8" cy="8" r="1.5" /><circle cx="8" cy="13" r="1.5" /></svg>
+                                </button>
+                                {loanMenuId === loan.id && (
+                                  <div className="loan-menu-container absolute right-0 top-9 z-50 bg-white border border-slate-100 rounded-xl shadow-xl w-32 overflow-hidden" style={{ boxShadow: '0 8px 24px rgba(15,24,87,0.12)' }}>
+                                    <button onClick={() => editLoan(loan)} className="w-full flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-[#f0f6ff] transition-colors cursor-pointer">
+                                      <Edit size={12} className="text-[#0176C7]" /> Edit
+                                    </button>
+                                    <button onClick={() => deleteLoan(loan.id)} className="w-full flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-red-500 hover:bg-red-50 transition-colors cursor-pointer">
+                                      <Trash2 size={12} /> Delete
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )
+                        })}
                       </div>
-                      <div>
-                        <label className="text-xs font-black uppercase tracking-wider text-slate-750 mb-2 block flex items-center gap-1"><ShieldCheck size={12} className="text-[#0176C7]" /> Insurance (%)</label>
-                        <NumField value={insurance} onChange={setInsurance} />
-                      </div>
-                      <div>
-                        <label className="text-xs font-black uppercase tracking-wider text-slate-750 mb-2 block flex items-center gap-1"><IndianRupee size={12} className="text-[#0176C7]" /> Fixed Misc (₹)</label>
-                        <NumField value={fixedMisc} onChange={setFixedMisc} />
-                      </div>
+
+                      {/* View All toggle */}
+                      {loans.length > 4 && (
+                        <button onClick={() => setShowAllLoans(p => !p)}
+                          className="w-full flex items-center justify-center gap-1.5 pt-4 mt-2 border-t border-[#f1f5f9] text-xs font-black text-[#0176C7] hover:text-[#0155AD] transition-colors cursor-pointer">
+                          {showAllLoans ? <><ChevronUp size={13} /> Show Less</> : <><ChevronDown size={13} /> View All Loans ({loans.length})</>}
+                        </button>
+                      )}
+
+                      {/* Summary bar */}
+                      {loans.length > 0 && (
+                        <div className="mt-4 pt-4 border-t border-[#f1f5f9] grid grid-cols-2 gap-3">
+                          <div className="bg-[#f8f9ff] rounded-xl p-3 border border-[#e8edf5]">
+                            <div className="text-xs font-bold text-slate-600 mb-1">Total Loan EMI</div>
+                            <div className="font-black text-[#0176C7] text-sm">{fmt(totalLoanEmi)}</div>
+                          </div>
+                          <div className="bg-[#f8f9ff] rounded-xl p-3 border border-[#e8edf5]">
+                            <div className="text-xs font-bold text-slate-600 mb-1">Total EMI Obligation</div>
+                            <div className="font-black text-[#0176C7] text-sm">{fmt(totalEmiObligation)}</div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -1107,9 +1342,8 @@ export default function EligibilityCalculatorPage() {
                     <div className="space-y-2.5 text-sm">
                       {[
                         { label: 'Gross Eligible Loan:', value: fmt(eligibleLoan) },
-                        { label: `Processing Fee (${procFee}%):`, value: fmt(procFeeAmt) },
                         { label: 'GST on Proc Fee (18%):', value: fmt(gstOnProc) },
-                        { label: `Insurance (${insurance}%):`, value: fmt(insuranceAmt) },
+                        { label: 'Insurance (0.5%):', value: fmt(insuranceAmt) },
                         { label: 'Other Fixed Charges:', value: fmt(fixedMisc) },
                       ].map(row => (
                         <div key={row.label} className="flex justify-between">
@@ -1253,7 +1487,7 @@ export default function EligibilityCalculatorPage() {
               <p className="text-slate-500 text-sm font-semibold mb-6">
                 Your loan scenario for <span className="text-slate-800 font-bold">"{saveModalData}"</span> has been saved successfully.
               </p>
-              <button 
+              <button
                 onClick={() => setSaveModalData(null)}
                 className="w-full py-3 text-white rounded-xl font-bold transition-colors shadow-sm hover:opacity-90"
                 style={{ background: '#4f46e5' }}>
