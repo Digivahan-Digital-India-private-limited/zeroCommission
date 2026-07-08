@@ -27,6 +27,7 @@ import RdCalculatorPage from './components/RdCalculatorPage'
 import SipCalculatorPage from './components/SipCalculatorPage'
 import FdCalculatorPage from './components/FdCalculatorPage'
 import GstCalculatorPage from './components/GstCalculatorPage'
+import BalanceTransferPage from './components/BalanceTransferPage'
 import TotalApplications from './components/TotalApplications'
 import ViewApplications from './components/ViewApplications'
 import UnviewedApplications from './components/UnviewedApplications'
@@ -265,6 +266,7 @@ export default function App() {
           <Route path="/sip-calculator" element={<SipCalculatorPage />} />
           <Route path="/fd-calculator" element={<FdCalculatorPage />} />
           <Route path="/gst-calculator" element={<GstCalculatorPage />} />
+          <Route path="/balance-transfer" element={<BalanceTransferPage />} />
           <Route path="/page/admin/*" element={
             <AdminProvider>
               <Routes>
