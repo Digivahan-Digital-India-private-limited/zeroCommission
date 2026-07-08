@@ -195,7 +195,7 @@ export default function Navbar() {
             <Link to="/sip-calculator" onClick={() => setMenuOpen(false)} className="text-[#0f1857]/80 hover:text-[#0f1857] hover:bg-black/5 px-4 py-3 rounded-xl font-semibold transition-all duration-250 text-[15px]">SIP Calculator</Link>
             <Link to="/fd-calculator" onClick={() => setMenuOpen(false)} className="text-[#0f1857]/80 hover:text-[#0f1857] hover:bg-black/5 px-4 py-3 rounded-xl font-semibold transition-all duration-250 text-[15px]">FD Calculator</Link>
             <Link to="/gst-calculator" onClick={() => setMenuOpen(false)} className="text-[#0f1857]/80 hover:text-[#0f1857] hover:bg-black/5 px-4 py-3 rounded-xl font-semibold transition-all duration-250 text-[15px]">GST Calculator</Link>
-            <Link to="/balance-transfer" onClick={() => setMenuOpen(false)} className="text-[#0f1857]/80 hover:text-[#0f1857] hover:bg-black/5 px-4 py-3 rounded-xl font-semibold transition-all duration-250 text-[15px]">Balance Transfer</Link>
+            {/* <Link to="/balance-transfer" onClick={() => setMenuOpen(false)} className="text-[#0f1857]/80 hover:text-[#0f1857] hover:bg-black/5 px-4 py-3 rounded-xl font-semibold transition-all duration-250 text-[15px]">Balance Transfer</Link> */}
           </div>
 
           <Link to="/contact" onClick={() => setMenuOpen(false)} className="text-[#0f1857]/80 hover:text-[#0f1857] hover:bg-black/5 px-4 py-3 rounded-xl font-semibold transition-all duration-250">Contact</Link>
