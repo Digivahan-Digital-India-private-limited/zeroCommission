@@ -34,7 +34,7 @@ const toolsLinks = [
   { label: 'SIP Calculator', href: '/sip-calculator' },
   { label: 'FD Calculator', href: '/fd-calculator' },
   { label: 'GST Calculator', href: '/gst-calculator' },
-  { label: 'Balance Transfer', href: '/balance-transfer' },
+  // { label: 'Balance Transfer', href: '/balance-transfer' },
 ];
 
 const resourceLinks = [
