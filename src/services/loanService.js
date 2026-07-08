@@ -3,11 +3,11 @@ import axios from 'axios';
 // ─── Base URL from env variable ────────────────────────────────────────────
 const IS_DEV = !import.meta.env.PROD;
 const BASE_URL = IS_DEV ? '/api_base' : 'https://zerocommissionloan.com';
-const NEXTPAY_API_BASE_URL = IS_DEV ? '/api_nextpay' : 'https://zerocommissionloan.com';
-const ZEROCOMMISSION_API_BASE_URL = IS_DEV ? '/api_zerocom' : 'https://zerocommissionloan.com';
+const TEST_API_BASE_URL = IS_DEV ? '/api_nextpay' : 'https://zerocommissionloan.com/api_v1';
+const ZEROCOMMISSION_API_BASE_URL = IS_DEV ? '/api_zerocom' : 'https://zerocommissionloan.com/api_v1';
 const buildNextPayUrl = path => {
   const normalizedPath = path.startsWith('/') ? path : `/${path}`;
-  return `${NEXTPAY_API_BASE_URL}${normalizedPath}`;
+  return `${TEST_API_BASE_URL}${normalizedPath}`;
 };
 const buildZeroCommissionUrl = path => {
   const normalizedPath = path.startsWith('/') ? path : `/${path}`;
@@ -59,7 +59,7 @@ export const submitLoanApplication = async formDataState => {
     Object.keys(formDataState).forEach(key => {
       formData.append(key, formDataState[key]);
     });
-    const response = await axios.post(buildZeroCommissionUrl('/api_v1/user/feature/apply_loan.php'), formData, {
+    const response = await axios.post(buildZeroCommissionUrl('/user/feature/apply_loan.php'), formData, {
       headers: {
         Accept: 'application/json'
       }
@@ -114,7 +114,7 @@ export const sendApplicationOtp = async (identifier, isToken = false) => {
     } else {
       formData.append('email', identifier);
     }
-    const response = await axios.post(buildZeroCommissionUrl('/api_v1/user/feature/request_track_application.php'), formData, {
+    const response = await axios.post(buildZeroCommissionUrl('/user/feature/request_track_application.php'), formData, {
       headers: {
         Accept: 'application/json'
       }
@@ -149,7 +149,7 @@ export const verifyApplicationOtp = async (email, otp) => {
     const formData = new FormData();
     formData.append('email', email);
     formData.append('otp', otp);
-    const response = await axios.post(buildZeroCommissionUrl('/api_v1/user/feature/track_application.php'), formData, {
+    const response = await axios.post(buildZeroCommissionUrl('/user/feature/track_application.php'), formData, {
       headers: {
         Accept: 'application/json'
       }
@@ -306,7 +306,7 @@ export const uploadDocuments = async (loanApplicationId, uploads, remarks = '', 
         files.forEach(file => formData.append(docId, file));
       }
     });
-    const response = await axios.post(buildZeroCommissionUrl('/api_v1/user/feature/upload_docs.php'), formData, {
+    const response = await axios.post(buildZeroCommissionUrl('/user/feature/upload_docs.php'), formData, {
       timeout: 60000,
       headers: {
         Authorization: authToken ? `Bearer ${authToken}` : '',
@@ -358,7 +358,7 @@ export const adminLoginAPI = async email => {
   try {
     const formData = new FormData();
     formData.append('email', email);
-    const response = await axios.post(buildNextPayUrl('/zero/admin/auth/send_login_otp.php'), formData);
+    const response = await axios.post(buildZeroCommissionUrl('/admin/auth/send_login_otp.php'), formData);
     if (response.data.status === true || response.data.status === 'true' || response.data.status === 'success') {
       return {
         success: true,
@@ -390,7 +390,7 @@ export const adminVerifyAPI = async (email, otp) => {
     const formData = new FormData();
     formData.append('email', email);
     formData.append('otp', otp);
-    const response = await axios.post(buildNextPayUrl('/zero/admin/auth/verify_login_otp.php'), formData);
+    const response = await axios.post(buildZeroCommissionUrl('/admin/auth/verify_login_otp.php'), formData);
     if (response.data.status === true || response.data.status === 'true' || response.data.status === 'success') {
       const data = response.data.data || {};
       if (data.access_token) {
@@ -427,7 +427,7 @@ export const adminPasswordLoginAPI = async (email, password) => {
     const formData = new FormData();
     formData.append('email', email);
     formData.append('password', password);
-    const response = await axios.post(buildNextPayUrl('/zero/admin/auth/login_with_password.php'), formData);
+    const response = await axios.post(buildZeroCommissionUrl('/admin/auth/login_with_password.php'), formData);
     if (response.data.status === true || response.data.status === 'true') {
       const token = response.data.data?.access_token;
       if (token) {
@@ -466,7 +466,7 @@ export const getAllLoanApplicationsNextPay = async (params = {}) => {
       limit: 500,
       ...params
     }).toString();
-    const response = await axios.get(buildNextPayUrl(`/zero/admin/feature/get_all_loan_applications.php?${query}`), {
+    const response = await axios.get(buildZeroCommissionUrl(`/admin/feature/get_all_loan_applications.php?${query}`), {
       headers: {
         'Authorization': token || ''
       }
@@ -498,7 +498,7 @@ export const adminRefreshTokenAPI = async () => {
     const refreshToken = localStorage.getItem('adminRefreshToken');
     if (!refreshToken) throw new Error('No refresh token found. Please login again.');
     const formData = new FormData();
-    const response = await axios.post(buildNextPayUrl('/zero/admin/auth/admin_refresh_token.php'), formData, {
+    const response = await axios.post(buildZeroCommissionUrl('/admin/auth/admin_refresh_token.php'), formData, {
       headers: {
         'Refresh-Token': refreshToken
       }
@@ -534,7 +534,7 @@ export const adminRefreshTokenAPI = async () => {
 export const adminLogoutAPI = async () => {
   try {
     const token = localStorage.getItem('adminToken');
-    const response = await axios.post(buildNextPayUrl('/zero/admin/admin_logout.php'), {}, {
+    const response = await axios.post(buildZeroCommissionUrl('/admin/admin_logout.php'), {}, {
       headers: {
         'Authorization': token ? `Bearer ${token}` : ''
       }
@@ -613,7 +613,7 @@ export const updateLoanStatusNextPay = async (loanApplicationId, status, remarks
     formData.append('loan_application_id', loanApplicationId);
     formData.append('status', status);
     formData.append('remarks', remarks);
-    const response = await axios.post(buildNextPayUrl('/zero/admin/feature/update_laon_status.php'), formData, {
+    const response = await axios.post(buildZeroCommissionUrl('/admin/feature/update_laon_status.php'), formData, {
       headers: {
         'Authorization': token || ''
       }
@@ -645,7 +645,7 @@ export const getDocumentDetailsNextPay = async loanApplicationId => {
     const token = localStorage.getItem('adminToken');
     const formData = new FormData();
     formData.append('loan_application_id', loanApplicationId);
-    const response = await axios.post(buildNextPayUrl('/zero/admin/feature/get_document_details.php'), formData, {
+    const response = await axios.post(buildZeroCommissionUrl('/admin/feature/get_document_details.php'), formData, {
       headers: {
         'Authorization': token || ''
       }
@@ -681,7 +681,7 @@ export const updateDocumentStatusNextPay = async (loanApplicationId, documentSta
     formData.append('loan_application_id', loanApplicationId);
     formData.append('document_status', documentStatus);
     formData.append('remarks', remarks);
-    const response = await axios.post(buildNextPayUrl('/zero/admin/feature/update_document_status.php'), formData, {
+    const response = await axios.post(buildZeroCommissionUrl('/admin/feature/update_document_status.php'), formData, {
       headers: {
         'Authorization': token || ''
       }
@@ -711,7 +711,7 @@ export const updateDocumentStatusNextPay = async (loanApplicationId, documentSta
 export const openApplicationNextPay = async loanApplicationId => {
   try {
     const token = localStorage.getItem('adminToken');
-    const response = await axios.get(buildNextPayUrl(`/zero/admin/feature/open_application.php?id=${loanApplicationId}`), {
+    const response = await axios.get(buildZeroCommissionUrl(`/admin/feature/open_application.php?id=${loanApplicationId}`), {
       headers: {
         'Authorization': token || ''
       }
@@ -743,7 +743,7 @@ export const deleteLoanApplicationNextPay = async loanApplicationId => {
     const token = localStorage.getItem('adminToken');
     const formData = new FormData();
     formData.append('loan_application_id', loanApplicationId);
-    const response = await axios.post(buildNextPayUrl('/zero/admin/feature/delete_loan_application.php'), formData, {
+    const response = await axios.post(buildZeroCommissionUrl('/admin/feature/delete_loan_application.php'), formData, {
       headers: {
         'Authorization': token || ''
       }
@@ -773,7 +773,7 @@ export const deleteLoanApplicationNextPay = async loanApplicationId => {
 export const exportApplicationsNextPay = async ids => {
   try {
     const token = localStorage.getItem('adminToken');
-    const response = await axios.post(buildNextPayUrl('/zero/admin/feature/export_application.php'), {
+    const response = await axios.post(buildZeroCommissionUrl('/admin/feature/export_application.php'), {
       ids
     }, {
       headers: {
@@ -807,7 +807,7 @@ export const getApplicationStatusById = async applicationId => {
   try {
     const formData = new FormData();
     formData.append('application_id', applicationId);
-    const response = await axios.post(buildNextPayUrl('/zero/user/verify_otp_test.php'), formData, {
+    const response = await axios.post(buildZeroCommissionUrl('/user/verify_otp_test.php'), formData, {
       headers: {
         'Authorization': 'Authorization'
       }
@@ -868,7 +868,7 @@ export const getApplicationStatusById = async applicationId => {
  */
 export const refreshApplicationStatus = async authToken => {
   try {
-    const response = await axios.post(buildZeroCommissionUrl('/api_v1/user/feature/refresh_application.php'), {}, {
+    const response = await axios.post(buildZeroCommissionUrl('/user/feature/refresh_application.php'), {}, {
       headers: {
         'Authorization': `Bearer ${authToken}`,
         'Accept': 'application/json'
@@ -933,7 +933,7 @@ export const refreshApplicationStatus = async authToken => {
  */
 export const getFaqList = async () => {
   try {
-    const response = await axios.get(buildZeroCommissionUrl('/api_v1/user/feature/faq/get_list.php'), {
+    const response = await axios.get(buildZeroCommissionUrl('/user/feature/faq/get_list.php'), {
       headers: {
         Accept: 'application/json'
       }
@@ -979,7 +979,7 @@ export const submitContactForm = async formDataState => {
       subject,
       message
     };
-    const candidateUrls = [buildZeroCommissionUrl('/api_v1/user/feature//contact/contact.php'), buildZeroCommissionUrl('/api_v1/user/feature/contact/contact.php')];
+    const candidateUrls = [buildZeroCommissionUrl('/user/feature//contact/contact.php'), buildZeroCommissionUrl('/user/feature/contact/contact.php')];
     let lastError = null;
     for (const url of candidateUrls) {
       try {
@@ -1021,7 +1021,7 @@ export default api;
 
 export const createGuestTicket = async formData => {
   try {
-    const response = await axios.post(buildZeroCommissionUrl("/api_v1/user/feature/consultation/create_guest_ticket.php"), formData, {
+    const response = await axios.post(buildZeroCommissionUrl("/user/feature/consultation/create_guest_ticket.php"), formData, {
       headers: {
         "Content-Type": "multipart/form-data"
       }

@@ -8,10 +8,10 @@ import { Link } from 'react-router-dom';
 gsap.registerPlugin(ScrollTrigger);
 
 const stats = [
-  { icon: Users, val: '10,000+', label: 'Satisfied Clients', color: 'from-[#0176C7] to-[#0155AD]' },
-  { icon: Award, val: '5 Stars', label: 'Customer Rating', color: 'from-blue-500 to-indigo-500' },
-  { icon: Clock, val: '24 Hrs', label: 'Avg. Approval Time', color: 'from-purple-500 to-violet-500' },
-  { icon: Target, val: '100%', label: 'Transparent Process', color: 'from-amber-500 to-orange-500' },
+  { icon: Users, val: '10,000', suffix: '+', label: 'Satisfied Clients' },
+  { icon: Award, val: '4.5', suffix: '★', label: 'Customer Rating' },
+  { icon: Clock, val: '24', suffix: 'Hrs', label: 'Avg. Approval Time' },
+  { icon: Target, val: '100', suffix: '%', label: 'Transparent Process' },
 ];
 
 export default function About() {
@@ -151,17 +151,22 @@ export default function About() {
         <div className="absolute bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 w-[95%] max-w-[1200px] bg-white rounded-2xl md:rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.08)] border border-gray-50 p-6 md:p-8 z-30">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-4 divide-x-0 md:divide-x divide-gray-100">
             {[
-              { icon: Users, val: '9,000+', label: 'Happy Customers' },
-              { icon: IndianRupee, val: '₹800+ Cr', label: 'Loans Processed' },
-              { icon: Landmark, val: '50+', label: 'Bank & NBFC Partners' },
-              { icon: ShieldCheck, val: '98%', label: 'Customer Satisfaction' },
+              { icon: Users, val: '9,000',suffix: '+', label: 'Happy Customers' },
+              { icon: IndianRupee, val: '₹800',suffix: '+ Cr', label: 'Loans Processed' },
+              { icon: Landmark, val: '50',suffix: '+', label: 'Bank & NBFC Partners' },
+              { icon: ShieldCheck, val: '98',suffix: '%', label: 'Customer Satisfaction' },
             ].map((stat, i) => (
               <div key={i} className="flex flex-col sm:flex-row items-center sm:items-start gap-4 px-2 md:px-6 text-center sm:text-left">
                 <div className="w-12 h-12 rounded-full bg-[#0155AD] flex items-center justify-center text-white shrink-0 shadow-md">
                   <stat.icon size={22} />
                 </div>
                 <div className="flex flex-col items-center sm:items-start">
-                  <div className="font-display font-black text-[#0f1857] text-[22px] md:text-[26px] leading-none mb-1.5">{stat.val}</div>
+                <div className="font-sans font-bold text-[#0f1857] text-[22px] md:text-[26px] leading-none mb-1.5 tracking-tight">
+                  {stat.val}
+                  <span className="relative -top-2 ml-0.5 text-[0.65em] font-bold font-sans">
+                    {stat.suffix}
+                  </span>
+                </div>
                   <div className="text-[11px] md:text-xs text-gray-500 font-medium uppercase tracking-wider mb-2">{stat.label}</div>
                   <div className="w-6 h-0.5 bg-[#0155AD] rounded-full"></div>
                 </div>
@@ -216,58 +221,168 @@ export default function About() {
             </div>
 
             <div className="abt-card relative" style={{ perspective: '1200px' }}>
-              <div className="relative rounded-3xl overflow-hidden p-8 shadow-2xl"
-                style={{ background: 'linear-gradient(145deg,#1a237e 0%,#080e38 100%)', boxShadow: '0 40px 80px rgba(26,35,126,0.35)' }}>
-                <div className="absolute top-0 right-0 w-48 h-48 rounded-full opacity-20 pointer-events-none"
-                  style={{ background: 'radial-gradient(circle,#0197E0,transparent)', filter: 'blur(40px)' }} />
-                <div className="relative z-10">
-                  <div className="flex items-center gap-3 mb-7">
-                    <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: 'rgba(1,151,224,0.2)' }}>
-                      <Target size={22} className="text-[#0197E0]" />
-                    </div>
-                    <div>
-                      <div className="text-white font-bold">Our Mission</div>
-                      <div className="text-white/50 text-xs">Empowering Financial Goals</div>
+            <div
+              className="relative rounded-3xl overflow-hidden p-8 shadow-2xl"
+              style={{
+                background: 'linear-gradient(145deg,#1a237e 0%,#080e38 100%)',
+                boxShadow: '0 40px 80px rgba(26,35,126,0.35)',
+              }}
+            >
+              <div
+                className="absolute top-0 right-0 w-48 h-48 rounded-full opacity-20 pointer-events-none"
+                style={{
+                  background: 'radial-gradient(circle,#0197E0,transparent)',
+                  filter: 'blur(40px)',
+                }}
+              />
+
+              <div className="relative z-10">
+                <div className="flex items-center gap-3 mb-7">
+                  <div
+                    className="w-11 h-11 rounded-xl flex items-center justify-center"
+                    style={{ background: 'rgba(1,151,224,0.2)' }}
+                  >
+                    <Target size={22} className="text-[#0197E0]" />
+                  </div>
+
+                  <div>
+                    <div className="text-white font-bold">Our Mission</div>
+                    <div className="text-white/50 text-xs">
+                      Empowering Financial Goals
                     </div>
                   </div>
-                  <div className="space-y-5">
-                    {[
-                      { label: 'Loan Processing Speed', color: 'from-[#0197E0] to-[#0155AD]' },
-                      { label: 'Client Satisfaction', color: 'from-blue-400 to-indigo-400' },
-                      { label: 'Approval Rate', color: 'from-amber-400 to-orange-400' },
-                    ].map(({ label, color }, i) => (
-                      <div key={label}>
-                        <div className="flex justify-between text-sm mb-2">
-                          <span className="text-white/70">{label}</span>
-                          <span className="text-white font-semibold">{[92,98,87][i]}%</span>
-                        </div>
-                        <div className="h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)' }}>
-                          <div className={`abt-bar h-full bg-gradient-to-r ${color} rounded-full`} style={{ width: 0 }} />
-                        </div>
+                </div>
+
+                <div className="space-y-5">
+                  {[
+                    {
+                      label: 'Loan Processing Speed',
+                      color: 'from-[#0197E0] to-[#0155AD]',
+                    },
+                    {
+                      label: 'Client Satisfaction',
+                      color: 'from-blue-400 to-indigo-400',
+                    },
+                    {
+                      label: 'Approval Rate',
+                      color: 'from-amber-400 to-orange-400',
+                    },
+                  ].map(({ label, color }, i) => (
+                    <div key={label}>
+                      <div className="flex justify-between text-sm mb-2">
+                        <span className="text-white/70">{label}</span>
+                        <span className="text-white font-semibold">
+                          {[92, 98, 87][i]}%
+                        </span>
                       </div>
-                    ))}
+
+                      <div
+                        className="h-2 rounded-full overflow-hidden"
+                        style={{ background: 'rgba(255,255,255,0.08)' }}
+                      >
+                        <div
+                          className={`abt-bar h-full bg-gradient-to-r ${color} rounded-full`}
+                          style={{ width: 0 }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div
+                  className="mt-7 pt-6 flex items-center justify-between"
+                  style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}
+                >
+                  {/* Loans Disbursed */}
+                  <div>
+                    <div className="text-white text-4xl leading-none">
+                      <span className="font-sans font-bold">₹</span>
+
+                      <span className="font-sans font-extrabold">800</span>
+
+                      <span className="relative -top-3 ml-0.5 text-[0.55em] font-bold font-sans">
+                        +
+                      </span>
+
+                      <span className="font-sans font-semibold text-[0.72em] ml-1">
+                        Cr
+                      </span>
+                    </div>
+
+                    <div className="text-white/50 text-xs mt-1">
+                      Loans Disbursed
+                    </div>
                   </div>
-                  <div className="mt-7 pt-6 flex items-center justify-between" style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-                    <div><div className="font-display font-black text-4xl text-white">₹800Cr+</div><div className="text-white/50 text-xs mt-1">Loans Disbursed</div></div>
-                    <div className="text-right"><div className="font-display font-black text-4xl text-[#0197E0]">5★</div><div className="text-white/50 text-xs mt-1">Average Rating</div></div>
+
+                  {/* Rating */}
+                  <div className="text-right">
+                  <div className="font-sans font-extrabold text-4xl text-[#0197E0] leading-none">
+                    5
+                    <span className="relative -top-3 ml-0.5 text-[0.5em] font-bold text-[#FFD700]">
+                      ★
+                    </span>
+                  </div>
+
+                    <div className="text-white/50 text-xs mt-1">
+                      Average Rating
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
+          </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-            {stats.map(({ icon: Icon, val, label, color }) => (
-              <div key={label} className="abt-stat group bg-white rounded-2xl p-6 text-center border border-gray-100/80 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 cursor-default"
-                style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.04)' }}>
-                <div className={`w-12 h-12 bg-gradient-to-br ${color} rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300`}>
-                  <Icon size={22} className="text-white" />
+              {stats.map(({ icon: Icon, val, suffix, label, color }) => (
+                <div
+                  key={label}
+                  className="abt-stat group bg-white rounded-2xl p-6 text-center border border-gray-100/80 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 cursor-default"
+                  style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.04)' }}
+                >
+                  <div
+                    className={`w-12 h-12 bg-gradient-to-br ${color} rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300`}
+                  >
+                    <Icon size={22} className="text-white" />
+                  </div>
+
+                  <div
+                    className="font-display font-black text-2xl md:text-3xl mb-1 leading-none"
+                    style={{ color: '#1a237e' }}
+                  >
+                    {val}
+
+                    {suffix === "+" && (
+                      <span className="relative -top-2 ml-0.5 text-[0.65em] font-sans font-bold">
+                        +
+                      </span>
+                    )}
+
+                    {suffix === "%" && (
+                      <span className="relative -top-2 ml-0.5 text-[0.65em] font-sans font-bold">
+                        %
+                      </span>
+                    )}
+
+                    {suffix === "Stars" && (
+                      <span className="relative -top-2 ml-1 text-[0.5em] font-sans font-bold">
+                        
+                      </span>
+                    )}
+
+                    {suffix === "Hrs" && (
+                      <span className="ml-1 text-[0.7em] font-sans font-semibold">
+                        Hrs
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="text-gray-500 text-xs font-medium">
+                    {label}
+                  </div>
                 </div>
-                <div className="font-display font-black text-2xl md:text-3xl mb-1" style={{ color: '#1a237e' }}>{val}</div>
-                <div className="text-gray-500 text-xs font-medium">{label}</div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
         </div>
       </section>
     </div>

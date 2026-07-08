@@ -24,7 +24,7 @@ const milestones = [
     icon: <Users size={26} className="text-[#a855f7]" />,
     bg: 'bg-[#faf5ff]',
     border: 'border-[#e9d5ff]',
-    desc: 'Reached 10,000+ happy customers across major cities in India.'
+    desc: 'Reached 9,000+ happy customers across major cities in India.'
   },
   {
     year: '2025',
@@ -32,7 +32,7 @@ const milestones = [
     icon: <Trophy size={26} className="text-[#f97316]" />,
     bg: 'bg-[#fff7ed]',
     border: 'border-[#fed7aa]',
-    desc: 'Crossed ₹500Cr+ in loans delivered with 50+ lending partners.'
+    desc: 'Crossed ₹800Cr+ in loans delivered with 50+ lending partners.'
   },
   {
     year: '2026',

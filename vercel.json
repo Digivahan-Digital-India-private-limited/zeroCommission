@@ -1,8 +1,8 @@
 {
   "rewrites": [
     {
-      "source": "/api_nextpay/:match*",
-      "destination": "https://nextpayindia.com/:match*"
+      "source": "/api_zerocom/:match*",
+      "destination": "https://zerocommissionloan.com/api_v1/:match*"
     },
     {
       "source": "/(.*)",
