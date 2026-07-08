@@ -1,453 +1,483 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { Home, User, Briefcase, ShieldCheck, ArrowRight, Clock, Sparkles } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useModal } from './ModalContext'
+import bgImage from '../assets/image (23).png'
 
 gsap.registerPlugin(ScrollTrigger)
 
-function ParticleCanvas() {
-  const canvasRef = useRef(null)
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const ctx = canvas.getContext('2d')
-    let particles = [], raf
-    const resize = () => { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight }
-    resize()
-    window.addEventListener('resize', resize)
-    
-    // Generate soft, subtle particles for a light background
-    for (let i = 0; i < 60; i++) {
-      particles.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        r: Math.random() * 2.5 + 0.5,
-        vx: (Math.random() - 0.5) * 0.3,
-        vy: (Math.random() - 0.5) * 0.3,
-        alpha: Math.random() * 0.25 + 0.05
-      })
-    }
-    
-    const draw = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
-      particles.forEach(p => {
-        ctx.beginPath()
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2)
-        // OLD: ctx.fillStyle = `rgba(0, 180, 140, ${p.alpha})` // Emerald teal tint
-        ctx.fillStyle = `rgba(1, 151, 224, ${p.alpha})` // Accent Blue tint
-        ctx.fill()
-        
-        p.x += p.vx
-        p.y += p.vy
-        if (p.x < 0 || p.x > canvas.width) p.vx *= -1
-        if (p.y < 0 || p.y > canvas.height) p.vy *= -1
-      })
-      
-      // Connect nearby particles with thin, light lines
-      particles.forEach((p1, i) => {
-        particles.slice(i + 1).forEach(p2 => {
-          const d = Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2)
-          if (d < 130) {
-            ctx.beginPath()
-            ctx.moveTo(p1.x, p1.y)
-            ctx.lineTo(p2.x, p2.y)
-            // OLD: ctx.strokeStyle = `rgba(0, 180, 140, ${0.04 * (1 - d / 130)})`
-            ctx.strokeStyle = `rgba(1, 151, 224, ${0.04 * (1 - d / 130)})`
-            ctx.lineWidth = 0.4
-            ctx.stroke()
-          }
-        })
-      })
-      raf = requestAnimationFrame(draw)
-    }
-    
-    draw()
-    return () => { cancelAnimationFrame(raf); window.removeEventListener('resize', resize) }
-  }, [])
-  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none opacity-60" />
-}
-
-const headline = 'Earn Commission'
-
 export default function Hero() {
   const heroRef = useRef(null)
-  const rightWrapperRef = useRef(null)
+  const bgRef = useRef(null)
   const { openModal } = useModal()
-
-  const [currentSlide, setCurrentSlide] = useState(0)
-  const heroImages = [
-    "/loan_types.webp",
-    "/hero1.webp",
-    "/hero2.webp",
-    "/hero3.webp",
-    "/hero4.webp",
-    "/hero5.webp"
-  ]
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide(prev => (prev + 1) % heroImages.length)
-    }, 3500)
-    return () => clearInterval(timer)
-  }, [])
 
   useEffect(() => {
     const h = heroRef.current
     if (!h) return
 
-    // Set initial states via GSAP
-    gsap.set(h.querySelectorAll('.will-animate'), { opacity: 0 })
-    gsap.set(h.querySelectorAll('.hero-char'), { opacity: 0, y: 70, rotateX: -60 })
-    gsap.set(h.querySelectorAll('.hero-orb'), { scale: 0, opacity: 0 })
-    gsap.set(h.querySelector('.hero-right-visual'), { opacity: 0, x: 120, rotateY: 15, scale: 0.9 })
-    gsap.set(h.querySelector('.hero-badge'), { opacity: 0, y: -25, scale: 0.85 })
-    gsap.set(h.querySelector('.hero-line2'), { opacity: 0, y: 50, skewY: 3 })
-    gsap.set(h.querySelector('.hero-line3'), { opacity: 0, y: 50, skewY: 3 })
-    gsap.set(h.querySelector('.hero-sub'), { opacity: 0, y: 25 })
-    gsap.set(h.querySelectorAll('.hero-loan-card'), { opacity: 0, y: 30, scale: 0.95 })
-    gsap.set(h.querySelectorAll('.hero-cta'), { opacity: 0, y: 20, scale: 0.92 })
-    gsap.set(h.querySelector('.hero-scroll'), { opacity: 0 })
-    gsap.set(h.querySelectorAll('.floating-tag'), { scale: 0, opacity: 0, y: 20 })
+    gsap.set(h.querySelectorAll('.al'), { opacity: 0, x: -45 })
+    gsap.set(h.querySelectorAll('.ar'), { opacity: 0, x: 45 })
+    gsap.set(bgRef.current, { opacity: 0 })
 
-    const tl = gsap.timeline({ delay: 0.8 })
+    const tl = gsap.timeline({ delay: 0.15 })
+    tl.to(bgRef.current, { opacity: 1, duration: 1.1, ease: 'power3.out' }, 0)
+    tl.to(h.querySelectorAll('.al'), { opacity: 1, x: 0, duration: 0.75, stagger: 0.11, ease: 'power3.out' }, 0.2)
+    tl.to(h.querySelectorAll('.ar'), { opacity: 1, x: 0, duration: 0.75, stagger: 0.11, ease: 'power3.out' }, 0.3)
 
-    // 1. Orbs reveal
-    tl.to(h.querySelectorAll('.hero-orb'), { scale: 1, opacity: 1, duration: 1.5, stagger: 0.3, ease: 'power3.out' }, 0)
-
-    // 2. Trust badge
-    tl.to(h.querySelector('.hero-badge'), { y: 0, opacity: 1, scale: 1, duration: 0.8, ease: 'back.out(1.5)' }, 0.2)
-
-    // 3. Characters flip in
-    tl.to(h.querySelectorAll('.hero-char'), {
-      y: 0,
-      opacity: 1,
-      rotateX: 0,
-      duration: 0.4,
-      stagger: 0.02,
-      ease: 'back.out(1.5)'
-    }, 0.2)
-
-    // 4. Headline lines
-    tl.to(h.querySelector('.hero-line2'), { y: 0, opacity: 1, skewY: 0, duration: 0.6, ease: 'power3.out' }, 0.5)
-    tl.to(h.querySelector('.hero-line3'), { y: 0, opacity: 1, skewY: 0, duration: 0.6, ease: 'power3.out' }, 0.6)
-
-    // 5. Subtitle
-    tl.to(h.querySelector('.hero-sub'), { y: 0, opacity: 1, duration: 0.5, ease: 'power2.out' }, 0.7)
-
-    // 6. Interactive Loan Category Cards (Staggered)
-    tl.to(h.querySelectorAll('.hero-loan-card'), { opacity: 1, y: 0, scale: 1, duration: 0.8, stagger: 0.1, ease: 'power3.out' }, 1.2)
-
-    // 7. CTA Buttons
-    tl.to(h.querySelectorAll('.hero-cta'), { y: 0, opacity: 1, scale: 1, duration: 0.5, stagger: 0.1, ease: 'back.out(1.5)' }, 0.9)
-
-    // 8. Right 3D Visual & Floating Tags
-    tl.to(h.querySelector('.hero-right-visual'), { x: 0, opacity: 1, rotateY: 0, scale: 1, duration: 1.0, ease: 'power3.out' }, 0.5)
-    tl.to(h.querySelectorAll('.floating-tag'), { scale: 1, opacity: 1, y: 0, duration: 0.8, stagger: 0.15, ease: 'back.out(1.6)' }, 0.8)
-
-    // 9. Scroll hint
-    tl.to(h.querySelector('.hero-scroll'), { opacity: 1, duration: 0.5 }, 1.5)
-
-    // Infinite Float Drifts
-    tl.add(() => {
-      if (rightWrapperRef.current) {
-        gsap.to(rightWrapperRef.current, { y: -15, duration: 4.5, repeat: -1, yoyo: true, ease: 'sine.inOut' })
-      }
-      
-      // Floating sub-tags drift at slightly different speeds
-      const tags = h.querySelectorAll('.floating-tag')
-      if (tags[0]) gsap.to(tags[0], { y: -8, x: 5, duration: 3.5, repeat: -1, yoyo: true, ease: 'sine.inOut' })
-      if (tags[1]) gsap.to(tags[1], { y: 8, x: -5, duration: 4.0, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 0.5 })
-
-      gsap.to(h.querySelector('.hero-scroll'), { y: 10, duration: 1.6, repeat: -1, yoyo: true, ease: 'sine.inOut' })
-      
-      // Ambient gradient blobs
-      gsap.to(h.querySelectorAll('.hero-orb')[0], { x: 40, y: -30, duration: 15, repeat: -1, yoyo: true, ease: 'sine.inOut' })
-      gsap.to(h.querySelectorAll('.hero-orb')[1], { x: -30, y: 40, duration: 18, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 1 })
-    })
-
-    // 10. Interactive 3D mouse parallax
-    const onMouseMove = (e) => {
-      const { clientX, clientY } = e
-      const width = window.innerWidth
-      const height = window.innerHeight
-      const x = (clientX / width - 0.5) * 2 // -1 to 1
-      const y = (clientY / height - 0.5) * 2 // -1 to 1
-
-      // Subtle backdrop orb shift
-      gsap.to(h.querySelectorAll('.hero-orb'), {
-        x: (i) => (i + 1) * -x * 25,
-        y: (i) => (i + 1) * -y * 25,
-        duration: 1.2,
-        ease: 'power2.out'
-      })
-
-      // 3D tilt interaction for primary image mockup
-      const visual = h.querySelector('.hero-right-visual')
-      if (visual) {
-        gsap.to(visual, {
-          rotateY: x * 12,
-          rotateX: -y * 12,
-          duration: 0.5,
-          ease: 'power2.out'
-        })
-      }
-
-      // Parallax for floating tags
-      const tags = h.querySelectorAll('.floating-tag')
-      if (tags[0]) gsap.to(tags[0], { x: x * 15, y: y * 10, duration: 0.8, ease: 'power2.out' })
-      if (tags[1]) gsap.to(tags[1], { x: -x * 12, y: -y * 15, duration: 0.8, ease: 'power2.out' })
-
-      gsap.to(h.querySelector('.hero-badge'), { x: x * 5, y: y * 3, duration: 0.8, ease: 'power2.out' })
-      gsap.to(h.querySelector('.hero-sub'), { x: -x * 6, y: -y * 3, duration: 1.0, ease: 'power2.out' })
-    }
-
-    h.addEventListener('mousemove', onMouseMove)
-
-    // Parallax on scroll
-    ScrollTrigger.create({
-      trigger: h,
-      start: 'top top',
-      end: 'bottom top',
-      onUpdate: self => {
-        gsap.set(h.querySelectorAll('.hero-orb')[0], { y: self.progress * 100 })
-        gsap.set(h.querySelectorAll('.hero-orb')[1], { y: self.progress * 60 })
-      }
-    })
-
-    return () => {
-      tl.kill()
-      h.removeEventListener('mousemove', onMouseMove)
-      ScrollTrigger.getAll().forEach(t => t.kill())
-    }
+    return () => { tl.kill(); ScrollTrigger.getAll().forEach(t => t.kill()) }
   }, [])
 
+  const features = [
+    {
+      icon: (
+        <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+          <rect x="5" y="2" width="11" height="16" rx="2" fill="#dbeafe" stroke="#2563eb" strokeWidth="1.5" />
+          <path d="M8 7h5M8 10h5M8 13h3" stroke="#2563eb" strokeWidth="1.5" strokeLinecap="round" />
+        </svg>
+      ),
+      title: '100% Paperless',
+      desc: 'Digital & hassle-free loan process',
+      bg: '#eff6ff',
+    },
+    {
+      icon: (
+        <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+          <path d="M3 21V9l9-6 9 6v12" fill="#dcfce7" stroke="#16a34a" strokeWidth="1.5" strokeLinejoin="round" />
+          <rect x="9" y="13" width="6" height="8" rx="1" fill="#bbf7d0" stroke="#16a34a" strokeWidth="1.5" />
+        </svg>
+      ),
+      title: '50+ Bank Partners',
+      desc: 'Compare from top banks & NBFCs',
+      bg: '#f0fdf4',
+    },
+    {
+      icon: (
+        <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="9" fill="#fff7ed" stroke="#f97316" strokeWidth="1.5" />
+          <text x="12" y="16.5" textAnchor="middle" fontSize="9" fill="#f97316" fontWeight="bold">%</text>
+        </svg>
+      ),
+      title: 'Lowest Interest Rates',
+      desc: 'Get the best rates specially for you',
+      bg: '#fff7ed',
+    },
+    {
+      icon: (
+        <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+          <path d="M13 3L4 14h7l-1 7 9-11h-7l1-7z" fill="#fefce8" stroke="#ca8a04" strokeWidth="1.5" strokeLinejoin="round" />
+        </svg>
+      ),
+      title: 'Quick Approval',
+      desc: 'Approval in 24 hours* in most cases',
+      bg: '#fefce8',
+    },
+    {
+      icon: (
+        <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+          <path d="M12 3l8 4v5c0 4.97-3.64 8.22-8 9-4.36-.78-8-4.03-8-9V7l8-4z" fill="#f0fdf4" stroke="#16a34a" strokeWidth="1.5" />
+          <path d="M9 12l2 2 4-4" stroke="#16a34a" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      ),
+      title: 'Zero Hidden Charges',
+      desc: 'Transparent process with no extra fees',
+      bg: '#f0fdf4',
+    },
+  ]
+
   return (
-    <section ref={heroRef} id="home" className="relative min-h-screen overflow-hidden flex flex-col justify-center py-20 lg:py-24"
-      style={{ backgroundColor: '#f8f9ff' }}>
+    <section
+      ref={heroRef}
+      id="home"
+      style={{
+        position: 'relative',
+        minHeight: '100vh',
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        background: 'linear-gradient(135deg, #ddeefa 0%, #eaf4fd 30%, #f0f7fe 55%, #e4f0fb 80%, #d8ebf7 100%)',
+      }}
+    >
 
-      <ParticleCanvas />
+      {/* ── DESKTOP BACKGROUND IMAGE (absolute positioned) ── */}
+      <img
+        ref={bgRef}
+        src={bgImage}
+        alt=""
+        aria-hidden="true"
+        className="hero-bg-image"
+      />
 
-      {/* Mesh gradients orbs for backdrop */}
-      {/* OLD:
-      <div className="hero-orb absolute -top-40 -left-40 w-[800px] h-[800px] rounded-full pointer-events-none"
-        style={{ background: 'radial-gradient(circle, rgba(1,151,224,0.06) 0%, transparent 70%)', filter: 'blur(80px)' }} />
-      <div className="hero-orb absolute -bottom-60 -right-20 w-[700px] h-[700px] rounded-full pointer-events-none"
-        style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.05) 0%, transparent 70%)', filter: 'blur(90px)' }} />
-      <div className="hero-orb absolute top-1/4 right-1/4 w-[500px] h-[500px] rounded-full pointer-events-none"
-        style={{ background: 'radial-gradient(circle, rgba(236,72,153,0.04) 0%, transparent 70%)', filter: 'blur(70px)' }} />
-      */}
-      <div className="hero-orb absolute -top-40 -left-40 w-[800px] h-[800px] rounded-full pointer-events-none"
-        style={{ background: 'radial-gradient(circle, rgba(1,85,173,0.15) 0%, transparent 70%)', filter: 'blur(80px)' }} />
-      <div className="hero-orb absolute -bottom-60 -right-20 w-[700px] h-[700px] rounded-full pointer-events-none"
-        style={{ background: 'radial-gradient(circle, rgba(1,118,199,0.15) 0%, transparent 70%)', filter: 'blur(90px)' }} />
-      <div className="hero-orb absolute top-1/4 right-1/4 w-[500px] h-[500px] rounded-full pointer-events-none"
-        style={{ background: 'radial-gradient(circle, rgba(1,151,224,0.15) 0%, transparent 70%)', filter: 'blur(70px)' }} />
+      {/* Left glow overlay for text readability */}
+      <div style={{
+        position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 2,
+        background: 'radial-gradient(ellipse 55% 80% at 18% 50%, rgba(232,243,255,0.92) 0%, rgba(232,243,255,0.60) 40%, transparent 70%)',
+      }} />
 
-      {/* Light subtle grid */}
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
-        style={{ backgroundImage: 'linear-gradient(rgba(0,0,0,0.1) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,0.1) 1px,transparent 1px)', backgroundSize: '70px 70px' }} />
+      {/* Right glow overlay */}
+      <div style={{
+        position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 2,
+        background: 'radial-gradient(ellipse 35% 70% at 98% 50%, rgba(224,240,255,0.75) 0%, transparent 65%)',
+      }} />
 
-      {/* Noise texture overlay */}
-      <div className="absolute inset-0 opacity-[0.008] pointer-events-none"
-        style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")` }} />
+      {/* ══════════════════════
+          MAIN CONTENT GRID
+      ══════════════════════ */}
+      <div
+        className="hero-content-grid"
+        style={{
+          position: 'relative', zIndex: 10,
+          width: '100%', maxWidth: '1440px',
+          margin: '0 auto',
+          padding: '100px 40px 140px',
+          display: 'grid',
+          gridTemplateColumns: '1fr auto',
+          gap: '32px',
+          alignItems: 'flex-start',
+        }}
+      >
 
-      {/* Grid Layout */}
-      <div className="relative z-10 w-full max-w-[1440px] mx-auto px-6 md:px-10">
-        <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center min-h-[75vh]">
+        {/* ── LEFT: Text & CTAs ── */}
+        <div className="hero-left-col" style={{ maxWidth: '560px' }}>
 
-          {/* LEFT: Text Copy & Interactive Loan Grid */}
-          <div className="lg:col-span-6 flex flex-col justify-center pr-4">
-
-            {/* Badge */}
-            {/* OLD style={{ background: 'rgba(1,151,224,0.08)', border: '1px solid rgba(1,151,224,0.22)', borderRadius: 50 }} */}
-            <div className="hero-badge will-animate inline-flex items-center self-start gap-2 mb-6 px-4 py-2"
-              style={{ background: 'rgba(1,151,224,0.15)', border: '1px solid rgba(1,151,224,0.4)', borderRadius: 50 }}>
-              <span className="relative flex h-2 w-2">
-                {/* OLD: bg-blue-500 */}
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ backgroundColor: '#0197E0' }} />
-                <span className="relative inline-flex rounded-full h-2 w-2" style={{ backgroundColor: '#0197E0' }} />
-              </span>
-              {/* OLD: text-[#0155AD] */}
-              <span className="text-[10px] font-bold tracking-[0.18em] uppercase flex items-center gap-1.5" style={{ color: '#0197E0' }}>
-                <Sparkles size={11} color="#0197E0" />FINANCIAL PROVIDER
-              </span>
-            </div>
-
-            {/* Headings */}
-            <div className="mb-6" style={{ perspective: '600px' }}>
-              <div className="overflow-hidden mb-1">
-                <div className="flex flex-wrap font-display font-black leading-[1.05]"
-                  style={{ fontSize: 'clamp(2.5rem, 4.5vw, 4.5rem)', color: '#0f1857' }}>
-                  {headline.split(' ').map((word, wi) => (
-                    <span key={wi} className="inline-block mr-[0.25em] whitespace-nowrap">
-                      {word.split('').map((c, i) => (
-                        <span key={i} className="hero-char inline-block" style={{ transformOrigin: 'top center' }}>
-                          {c}
-                        </span>
-                      ))}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              <div className="overflow-hidden mb-2">
-                <div className="hero-line2 will-animate font-display font-black leading-[1.05]"
-                  style={{ fontSize: 'clamp(2.5rem, 4.5vw, 4.5rem)', color: '#0f1857' }}>
-                  with
-                </div>
-              </div>
-
-              <div className="overflow-hidden">
-                <div className="hero-line3 will-animate font-display font-black leading-[1.05]"
-                  style={{ fontSize: 'clamp(2.5rem, 4.5vw, 4.5rem)', color: '#0f1857' }}>
-                  {/* OLD: <span className="bg-gradient-to-r from-[#0176C7] via-[#0197E0] to-[#0155AD] bg-clip-text text-transparent"> */}
-                  <span className="bg-gradient-to-r from-[#0176C7] via-[#0197E0] to-[#0155AD] bg-clip-text text-transparent">
-                    Zero Commission.
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Subtitle */}
-            <p className="hero-sub will-animate text-[0.95rem] md:text-[1.05rem] leading-[1.75] mb-8 max-w-[560px]" style={{ color: '#5b6189' }}>
-              Your loan. Your commission. Apply through Zero Commission and receive the commission back on eligible loans. Compare offers from leading banks and NBFCs with complete transparency and zero hidden charges.
-            </p>
-
-
-            {/* CTAs */}
-            <div className="flex flex-wrap gap-4 items-center">
-              {/* OLD style={{ background: 'linear-gradient(135deg, #0197E0, #029476)', boxShadow: '0 8px 24px rgba(1,151,224,0.22)' }} */}
-              <Link to="/services" className="hero-cta will-animate group relative flex items-center gap-3 text-white font-bold px-8 py-3.5 rounded-xl text-[0.9rem] overflow-hidden hover:-translate-y-0.5 active:scale-[0.98] transition-transform duration-300"
-                style={{ background: 'linear-gradient(135deg, #0176C7, #0155AD)', boxShadow: '0 8px 24px rgba(1,118,199,0.4)' }}>
-                <div className="absolute inset-0 -skew-x-12 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000 ease-in-out"
-                  style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)' }} />
-                Explore Our Services
-                <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform duration-250" />
-              </Link>
-              {/* OLD: className="... text-navy-800/70 hover:text-navy-800 ... bg-white/60 hover:bg-white ..." style={{ color: '#0f1857' }} */}
-              <a href="#how-it-works" className="hero-cta will-animate flex items-center gap-2 font-semibold px-8 py-3.5 rounded-xl text-[0.9rem] border transition-all duration-300 bg-white/60 hover:bg-white"
-                style={{ 
-                  color: '#0f1857',
-                  borderColor: '#0155AD'
-                }}
-              >
-                How It Works
-              </a>
-            </div>
-
+          {/* Badge */}
+          <div className="al hero-badge" style={{
+            display: 'inline-flex', alignItems: 'center', gap: '8px',
+            marginBottom: '22px',
+            padding: '8px 18px',
+            borderRadius: '50px',
+            background: 'rgba(1,118,199,0.10)',
+            border: '1.5px solid rgba(1,118,199,0.30)',
+          }}>
+            <svg width="15" height="15" fill="none" viewBox="0 0 24 24">
+              <path d="M12 3l8 4v5c0 5-4 8-8 9-4-1-8-4-8-9V7l8-4z" fill="#0176C7" />
+            </svg>
+            <span style={{ color: '#0155AD', fontSize: '11px', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase' }}>
+              India's Trusted Loan Marketplace
+            </span>
           </div>
 
-          {/* RIGHT: Floating 3D Illustration & Overlay Tags */}
-          <div className="lg:col-span-6 flex justify-center items-center">
-            <div ref={rightWrapperRef} className="relative z-10 w-full max-w-[550px] lg:max-w-[700px] xl:max-w-[800px] 2xl:max-w-[900px] transition-all duration-500" style={{ perspective: '1200px' }}>
-              
-              {/* Primary 3D Image Card */}
-              <div className="hero-right-visual will-animate relative rounded-[28px] overflow-hidden border border-white/60 shadow-[0_32px_64px_-12px_rgba(15,24,87,0.12)] p-2 bg-gradient-to-tr from-white/60 to-white"
-                style={{ transformStyle: 'preserve-3d', backdropFilter: 'blur(8px)' }}>
-                
-                {/* Glow Behind */}
-                {/* OLD: <div className="absolute inset-0 -z-10 bg-gradient-to-tr from-[#0176C7] to-[#001139] opacity-30 rounded-[28px] blur-2xl" /> */}
-                <div className="absolute inset-0 -z-10 bg-gradient-to-tr from-[#0176C7] to-[#001139] opacity-30 rounded-[28px] blur-2xl" />
-                
-                <div className="relative rounded-[20px] shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)] overflow-hidden w-full aspect-[16/10] bg-white group">
-                  {heroImages.map((img, idx) => (
-                    <img 
-                      key={idx}
-                      src={img} 
-                      alt={`Funding Solution ${idx + 1}`} 
-                      className={`absolute top-0 left-0 w-full h-full transform transition-all duration-1000 ease-in-out ${
-                        idx === 0 ? 'object-contain' : 'object-cover'
-                      } ${currentSlide === idx ? 'opacity-100 scale-100' : 'opacity-0 scale-105'}`} 
-                    />
-                  ))}
-                </div>
-              </div>
-
-              {/* Floating Overlay Badge 1 */}
-              <div className="floating-tag absolute -top-5 -left-6 bg-white/95 border border-black/5 px-4 py-3 rounded-2xl shadow-lg flex items-center gap-3 backdrop-blur-md"
-                style={{ transformStyle: 'preserve-3d', zIndex: 30 }}>
-                {/* OLD: <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-[#0197E0]"> */}
-                <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: '#001139', color: '#0197E0' }}>
-                  <ShieldCheck size={16} />
-                </div>
-                <div>
-                  <h5 className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: '#0155AD' /* OLD: '#8b8fae' */ }}>Verification</h5>
-                  <p className="font-bold text-xs" style={{ color: '#001139' /* OLD: '#0f1857' */ }}>100% Paperless Process</p>
-                </div>
-              </div>
-
-              {/* Floating Overlay Badge 2 */}
-              <div className="floating-tag absolute -bottom-5 -right-6 bg-white/95 border border-black/5 px-4 py-3 rounded-2xl shadow-lg flex items-center gap-3 backdrop-blur-md"
-                style={{ transformStyle: 'preserve-3d', zIndex: 30 }}>
-                {/* OLD: <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-[#0176C7] animate-pulse"> */}
-                <div className="w-8 h-8 rounded-full flex items-center justify-center animate-pulse" style={{ backgroundColor: '#001139', color: '#0197E0' }}>
-                  <Clock size={16} />
-                </div>
-                <div>
-                  <h5 className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: '#0155AD' /* OLD: '#8b8fae' */ }}>Approval Speed</h5>
-                  <p className="font-bold text-xs" style={{ color: '#001139' /* OLD: '#0f1857' */ }}>Disbursed in 24 Hours</p>
-                </div>
-              </div>
-
-            </div>
+          {/* Heading */}
+          <div className="al hero-heading-text" style={{ marginBottom: '18px' }}>
+            <h1 style={{
+              fontFamily: "'Inter','Segoe UI',sans-serif",
+              fontWeight: 900, lineHeight: 1.06, margin: 0,
+            }}>
+              <span style={{ display: 'block', fontSize: 'clamp(1.8rem, 6vw, 3.2rem)', color: '#0c1a3a' }}>Why Pay Brokerage?</span>
+              <span style={{ display: 'block', fontSize: 'clamp(1.8rem, 6vw, 3.2rem)', color: '#0176C7', marginTop: '3px' }}>Earn Commission</span>
+              <span style={{ display: 'block', fontSize: 'clamp(1.8rem, 6vw, 3.2rem)', color: '#0176C7' }}>Instead.</span>
+            </h1>
           </div>
 
+          {/* Subtitle */}
+          <p className="al" style={{
+            color: '#4f5d7a', fontSize: '0.95rem', lineHeight: 1.80,
+            marginBottom: '28px', maxWidth: '400px',
+          }}>
+            Compare offers from 50+ banks &amp; NBFCs. Get the best
+            interest rates, complete paperless processing, and
+            earn commission on eligible loans.
+          </p>
+
+          {/* CTA Buttons */}
+          <div className="al hero-btns" style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '28px' }}>
+            <button
+              onClick={openModal}
+              className="hero-btn-primary"
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                background: 'linear-gradient(135deg,#0176C7,#0155AD)',
+                color: '#fff', fontWeight: 700,
+                padding: '13px 30px', borderRadius: '12px',
+                fontSize: '0.9rem', border: 'none', cursor: 'pointer',
+                boxShadow: '0 8px 24px rgba(1,118,199,0.40)',
+                transition: 'transform 0.2s,box-shadow 0.2s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 12px 30px rgba(1,118,199,0.52)' }}
+              onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(1,118,199,0.40)' }}
+            >
+              Apply Now
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+                <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+
+            <Link
+              to="/services"
+              className="hero-btn-outline"
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                background: 'rgba(255,255,255,0.90)',
+                backdropFilter: 'blur(8px)',
+                color: '#0c1a3a', fontWeight: 600,
+                padding: '13px 28px', borderRadius: '12px',
+                fontSize: '0.9rem',
+                border: '1.8px solid rgba(1,118,199,0.35)',
+                textDecoration: 'none',
+                boxShadow: '0 2px 10px rgba(0,0,0,0.06)',
+                transition: 'background 0.2s,border-color 0.2s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = '#eff6ff'; e.currentTarget.style.borderColor = '#0176C7' }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.90)'; e.currentTarget.style.borderColor = 'rgba(1,118,199,0.35)' }}
+            >
+              Explore Loans
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+                <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </Link>
+          </div>
+
+          {/* Social Proof */}
+          <div className="al hero-social-row" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div className="hero-avatars" style={{ display: 'flex', alignItems: 'center' }}>
+              {[
+                'https://i.pravatar.cc/40?img=12',
+                'https://i.pravatar.cc/40?img=25',
+                'https://i.pravatar.cc/40?img=47',
+              ].map((src, i) => (
+                <img
+                  key={i}
+                  src={src}
+                  alt={`Customer ${i + 1}`}
+                  className="hero-avatar-img"
+                  style={{
+                    width: '46px', height: '46px',
+                    borderRadius: '50%',
+                    border: '3px solid #fff',
+                    objectFit: 'cover',
+                    marginLeft: i === 0 ? 0 : '-14px',
+                    zIndex: 3 - i,
+                    position: 'relative',
+                    flexShrink: 0,
+                  }}
+                />
+              ))}
+              <div className="hero-avatar-k" style={{
+                width: '46px', height: '46px', borderRadius: '50%',
+                border: '3px solid #fff', background: '#0176C7',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                color: '#fff', fontSize: '11px', fontWeight: 700,
+                marginLeft: '-14px', zIndex: 0, position: 'relative',
+                flexShrink: 0,
+              }}>10K+</div>
+            </div>
+            <div className="hero-social-text" style={{ marginTop: '4px' }}>
+              <div className="hero-social-title" style={{ color: '#0176C7', fontWeight: 700, fontSize: '1.05rem', lineHeight: 1.3 }}>10,000+ Happy Customers</div>
+              <div className="hero-social-desc" style={{ color: '#6b7a99', fontSize: '0.85rem' }}>Trusted by customers across India</div>
+            </div>
+          </div>
         </div>
+
+        {/* ── RIGHT: Feature Cards (desktop only, hidden on mobile via CSS) ── */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '270px' }}
+          className="hero-cards-col">
+          {features.map((f, i) => (
+            <div
+              key={i}
+              className="ar"
+              style={{
+                display: 'flex', alignItems: 'center', gap: '14px',
+                background: 'rgba(255,255,255,0.92)',
+                backdropFilter: 'blur(10px)',
+                borderRadius: '16px',
+                padding: '14px 16px',
+                boxShadow: '0 2px 16px rgba(0,0,0,0.07)',
+                border: '1px solid rgba(255,255,255,0.80)',
+                transition: 'transform 0.2s,box-shadow 0.2s',
+                cursor: 'default',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.11)' }}
+              onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 2px 16px rgba(0,0,0,0.07)' }}
+            >
+              <div style={{
+                flexShrink: 0, width: '44px', height: '44px',
+                borderRadius: '12px', background: f.bg,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                {f.icon}
+              </div>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: '0.88rem', color: '#0c1a3a', lineHeight: 1.35 }}>{f.title}</div>
+                <div style={{ color: '#8a93a8', fontSize: '0.78rem', lineHeight: 1.4 }}>{f.desc}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+
       </div>
 
-      {/* Inline styles for the wave animations */}
+      {/* ── ALL STYLES ── */}
       <style>{`
+        /* Desktop: absolute positioned background image */
+        .hero-bg-image {
+          position: absolute;
+          top: px;
+          left: 62%;
+          transform: translateX(-50%);
+          width: 74%;
+          max-width: 980px;
+          min-width: 450px;
+          height: auto;
+          object-fit: contain;
+          pointer-events: none;
+          z-index: 1;
+          filter: drop-shadow(0 30px 60px rgba(1,100,200,0.18));
+        }
+
+        /* ── TABLET (900-1024px) ── */
+        @media (max-width: 1024px) and (min-width: 901px) {
+          .hero-bg-image {
+            width: 78%;
+            top: 100px;
+            transform: translateX(-35%);
+            opacity: 0.8;
+          }
+        }
+
+        /* ── MOBILE (<=900px) ── */
+        @media (max-width: 900px) {
+          /* Single column layout */
+          .hero-content-grid {
+            grid-template-columns: 1fr !important;
+            padding: 80px 20px 110px !important;
+            gap: 16px !important;
+            align-items: flex-start !important;
+          }
+
+          /* Constrain left column text width so it fits beside the image */
+          .hero-left-col {
+            width: 58% !important;
+            position: relative;
+            z-index: 5;
+          }
+
+          /* Background image: bigger & more to the right */
+          .hero-bg-image {
+            width: 90%;
+            min-width: 300px;
+            top: 85px;
+            left: auto;
+            right: -23%;
+            transform: none;
+            opacity: 1;
+            z-index: 1;
+          }
+
+          /* Hide right feature cards column */
+          .hero-cards-col {
+            display: none !important;
+          }
+
+          /* Badge styling adjust */
+          .hero-badge {
+            margin-bottom: 14px !important;
+            padding: 6px 12px !important;
+          }
+          .hero-badge span {
+            font-size: 8px !important;
+          }
+
+          .hero-heading-text {
+            margin-bottom: 12px !important;
+          }
+
+          /* Full-width buttons stacked */
+          .hero-btns {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 10px !important;
+            margin-bottom: 22px !important;
+          }
+          .hero-btn-primary,
+          .hero-btn-outline {
+            width: 210px !important;
+            justify-content: center !important;
+            padding: 12px 16px !important;
+            font-size: 0.88rem !important;
+          }
+
+          /* Social proof: avatars on top, text below (match photo) */
+          .hero-social-row {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 4px !important;
+          }
+          .hero-avatar-img,
+          .hero-avatar-k {
+            width: 38px !important;
+            height: 38px !important;
+            border-width: 2px !important;
+            font-size: 9px !important;
+          }
+          .hero-avatar-k {
+            margin-left: -10px !important;
+          }
+          .hero-avatar-img:not(:first-child) {
+            margin-left: -10px !important;
+          }
+          .hero-social-title {
+            font-size: 0.9rem !important;
+            font-weight: 700 !important;
+            line-height: 1.2 !important;
+          }
+          .hero-social-desc {
+            font-size: 0.72rem !important;
+            color: #6b7a99 !important;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .hero-content-grid {
+            padding: 65px 16px 90px !important;
+          }
+          .hero-left-col {
+            width: 58% !important;
+          }
+          .hero-bg-image {
+            width: 92%;
+            top: 75px;
+            right: -60%;
+          }
+        }
+
+        /* ── Wave animations ── */
         @keyframes wave-move-left {
-          0% { transform: translate3d(0, 0, 0); }
-          100% { transform: translate3d(-50%, 0, 0); }
+          0%   { transform: translate3d(0,0,0); }
+          100% { transform: translate3d(-50%,0,0); }
         }
         @keyframes wave-move-right {
-          0% { transform: translate3d(-50%, 0, 0); }
-          100% { transform: translate3d(0, 0, 0); }
+          0%   { transform: translate3d(-50%,0,0); }
+          100% { transform: translate3d(0,0,0); }
         }
         .wave-layer {
-          width: 200%;
-          height: 100%;
-          position: absolute;
-          bottom: 0;
-          left: 0;
+          width: 200%; height: 100%;
+          position: absolute; bottom: 0; left: 0;
           transform-style: preserve-3d;
           backface-visibility: hidden;
         }
-        .animate-wave-slow {
-          animation: wave-move-left 24s linear infinite;
-        }
-        .animate-wave-mid {
-          animation: wave-move-right 17s linear infinite;
-        }
-        .animate-wave-fast {
-          animation: wave-move-left 11s linear infinite;
-        }
+        .animate-wave-slow { animation: wave-move-left  24s linear infinite; }
+        .animate-wave-mid  { animation: wave-move-right 17s linear infinite; }
+        .animate-wave-fast { animation: wave-move-left  11s linear infinite; }
       `}</style>
 
-      {/* Animated Bottom Wave Layout */}
-      <div className="absolute bottom-0 left-0 right-0 h-[100px] overflow-hidden pointer-events-none z-10">
-        
-        {/* Wave 1: Soft Teal Tint (Back Layer) */}
-        <svg className="wave-layer animate-wave-slow" viewBox="0 0 2880 100" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-          {/* OLD: <path d="M 0,50 C 360,20 360,80 720,50 C 1080,20 1080,80 1440,50 C 1800,20 1800,80 2160,50 C 2520,20 2520,80 2880,50 L 2880,100 L 0,100 Z" fill="rgba(1, 151, 224, 0.08)" /> */}
-          <path d="M 0,50 C 360,20 360,80 720,50 C 1080,20 1080,80 1440,50 C 1800,20 1800,80 2160,50 C 2520,20 2520,80 2880,50 L 2880,100 L 0,100 Z" fill="rgba(1, 151, 224, 0.15)" />
+      {/* ── BOTTOM WAVES ── */}
+      <div style={{
+        position: 'absolute', bottom: 0, left: 0, right: 0,
+        height: '100px', overflow: 'hidden',
+        pointerEvents: 'none', zIndex: 10,
+      }}>
+        <svg className="wave-layer animate-wave-slow" viewBox="0 0 2880 100" fill="none" preserveAspectRatio="none">
+          <path d="M 0,50 C 360,20 360,80 720,50 C 1080,20 1080,80 1440,50 C 1800,20 1800,80 2160,50 C 2520,20 2520,80 2880,50 L 2880,100 L 0,100 Z" fill="rgba(1,151,224,0.15)" />
         </svg>
-
-        {/* Wave 2: Soft Purple/Indigo Tint (Middle Layer) */}
-        <svg className="wave-layer animate-wave-mid" viewBox="0 0 2880 100" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-          {/* OLD: <path d="M 0,60 C 360,80 360,40 720,60 C 1080,80 1080,40 1440,60 C 1800,80 1800,40 2160,60 C 2520,80 2520,40 2880,60 L 2880,100 L 0,100 Z" fill="rgba(99, 102, 241, 0.05)" /> */}
-          <path d="M 0,60 C 360,80 360,40 720,60 C 1080,80 1080,40 1440,60 C 1800,80 1800,40 2160,60 C 2520,80 2520,40 2880,60 L 2880,100 L 0,100 Z" fill="rgba(1, 85, 173, 0.2)" />
+        <svg className="wave-layer animate-wave-mid" viewBox="0 0 2880 100" fill="none" preserveAspectRatio="none">
+          <path d="M 0,60 C 360,80 360,40 720,60 C 1080,80 1080,40 1440,60 C 1800,80 1800,40 2160,60 C 2520,80 2520,40 2880,60 L 2880,100 L 0,100 Z" fill="rgba(1,85,173,0.20)" />
         </svg>
-
-        {/* Wave 3: Solid Light-Blue Front */}
-        <svg className="wave-layer animate-wave-fast" viewBox="0 0 2880 100" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <svg className="wave-layer animate-wave-fast" viewBox="0 0 2880 100" fill="none" preserveAspectRatio="none">
           <path d="M 0,70 C 360,55 360,85 720,70 C 1080,55 1080,85 1440,70 C 1800,55 1800,85 2160,70 C 2520,55 2520,85 2880,70 L 2880,100 L 0,100 Z" fill="#ffffff" />
         </svg>
-
       </div>
+
     </section>
   )
 }
