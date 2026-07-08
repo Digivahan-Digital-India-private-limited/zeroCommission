@@ -4,6 +4,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { Link } from 'react-router-dom'
 import { useModal } from './ModalContext'
 import bgImage from '../assets/image (23).png'
+import bgImageMobile from '../assets/image (24).png'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -106,7 +107,15 @@ export default function Hero() {
         src={bgImage}
         alt=""
         aria-hidden="true"
-        className="hero-bg-image"
+        className="hero-bg-image hero-bg-desktop"
+      />
+
+      {/* ── MOBILE BACKGROUND IMAGE ── */}
+      <img
+        src={bgImageMobile}
+        alt=""
+        aria-hidden="true"
+        className="hero-bg-image hero-bg-mobile"
       />
 
       {/* Left glow overlay for text readability */}
@@ -312,17 +321,26 @@ export default function Hero() {
         /* Desktop: absolute positioned background image */
         .hero-bg-image {
           position: absolute;
-          top: px;
-          left: 62%;
-          transform: translateX(-50%);
-          width: 74%;
-          max-width: 980px;
-          min-width: 450px;
+          top: 50%;
           height: auto;
           object-fit: contain;
           pointer-events: none;
           z-index: 1;
           filter: drop-shadow(0 30px 60px rgba(1,100,200,0.18));
+        }
+
+        /* Desktop image */
+        .hero-bg-desktop {
+          left: 62%;
+          transform: translate(-50%, -50%);
+          width: 74%;
+          max-width: 980px;
+          min-width: 450px;
+        }
+
+        /* Mobile image: hidden by default on desktop */
+        .hero-bg-mobile {
+          display: none;
         }
 
         /* ── TABLET (900-1024px) ── */
@@ -340,26 +358,34 @@ export default function Hero() {
           /* Single column layout */
           .hero-content-grid {
             grid-template-columns: 1fr !important;
-            padding: 80px 20px 110px !important;
+            padding: 25px 20px 30px !important;
             gap: 16px !important;
-            align-items: flex-start !important;
+            align-items: center !important;
+            min-height: 100vh;
           }
 
           /* Constrain left column text width so it fits beside the image */
           .hero-left-col {
-            width: 58% !important;
+            width: 40% !important;
+            max-width: none !important;
             position: relative;
             z-index: 5;
           }
 
-          /* Background image: bigger & more to the right */
-          .hero-bg-image {
-            width: 90%;
-            min-width: 300px;
-            top: 85px;
+          /* Hide desktop image on mobile */
+          .hero-bg-desktop {
+            display: none !important;
+          }
+
+          /* Show mobile image, positioned right side vertically centered */
+          .hero-bg-mobile {
+            display: block !important;
+            width: 1300%;
+            min-width: 20px;
+            top: 50%;
             left: auto;
-            right: -23%;
-            transform: none;
+            right: -8%;
+            transform: translateY(-50%);
             opacity: 1;
             z-index: 1;
           }
@@ -429,15 +455,18 @@ export default function Hero() {
 
         @media (max-width: 480px) {
           .hero-content-grid {
-            padding: 65px 16px 90px !important;
+            padding: 25px 16px 30px !important;
+            min-height: 100vh;
           }
           .hero-left-col {
-            width: 58% !important;
+            width: 50% !important;
           }
-          .hero-bg-image {
-            width: 92%;
-            top: 75px;
-            right: -60%;
+          .hero-bg-mobile {
+            width: 65%;
+            min-width: 200px;
+            top: 50%;
+            right: -8%;
+            transform: translateY(-50%);
           }
         }
 
