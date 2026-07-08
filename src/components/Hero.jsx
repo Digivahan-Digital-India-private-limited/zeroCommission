@@ -272,7 +272,13 @@ export default function Hero() {
               }}>10K+</div>
             </div>
             <div className="hero-social-text" style={{ marginTop: '4px' }}>
-              <div className="hero-social-title" style={{ color: '#0176C7', fontWeight: 700, fontSize: '1.05rem', lineHeight: 1.3 }}>10,000+ Happy Customers</div>
+            <div className="hero-social-title"
+                  style={{ color: '#0176C7', fontWeight: 700, fontSize: '1.05rem', lineHeight: 1.3 }} > <span>9,000</span> <span
+                  style={{ position: 'relative', top: '-0.45em', fontSize: '0.65em', fontFamily: 'Arial, Helvetica, sans-serif', fontWeight: 700, marginLeft: '2px' }}>
+                  +
+                  </span>
+                  <span> Happy Customers</span>
+              </div> 
               <div className="hero-social-desc" style={{ color: '#6b7a99', fontSize: '0.85rem' }}>Trusted by customers across India</div>
             </div>
           </div>
@@ -461,13 +467,21 @@ export default function Hero() {
           .hero-left-col {
             width: 50% !important;
           }
-          .hero-bg-mobile {
-            width: 65%;
-            min-width: 200px;
-            top: 50%;
-            right: -8%;
-            transform: translateY(-50%);
-          }
+          .hero-bg-mobile{
+          display:block !important;
+
+          width:95%;
+          min-width:320px;
+
+          top:35%;
+          right:-15%;
+
+          transform:translateY(-50%) scale(1.18);
+
+          opacity:1;
+
+          z-index:1;
+      }
         }
 
         /* ── Wave animations ── */
