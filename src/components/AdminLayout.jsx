@@ -5,7 +5,8 @@ import {
   LayoutDashboard, 
   Users, 
   LogOut,
-  ArrowLeft
+  ArrowLeft,
+  BarChart2,
 } from 'lucide-react';
 import { adminLogoutAPI } from '../services/loanService';
 
@@ -50,6 +51,13 @@ export default function AdminLayout({ children, title = "Welcome Back, Admin", s
             >
               <LayoutDashboard size={20} className={isActive('/page/admin/dashboard') ? 'text-[#0197E0]' : ''} />
               Dashboard
+            </Link>
+            <Link 
+              to="/page/admin/check-cibil"
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors w-full ${isActive('/page/admin/check-cibil') ? 'bg-[#f0f9ff] text-[#1a237e]' : 'text-gray-600 hover:bg-gray-50'}`}
+            >
+              <BarChart2 size={20} className={isActive('/page/admin/check-cibil') ? 'text-[#0197E0]' : ''} />
+              Check Cibil
             </Link>
             {/* Can add more generic menu links here if needed */}
           </nav>

@@ -37,6 +37,7 @@ import UploadedDocuments from './components/UploadedDocuments'
 import PendingDocuments from './components/PendingDocuments'
 import ApprovedLoans from './components/ApprovedLoans'
 import DisbursedLoans from './components/DisbursedLoans'
+import CheckCibil from './components/CheckCibil'
 import { AdminProvider } from './components/AdminContext'
 import { ModalProvider } from './components/ModalContext'
 import SuccessModal from './components/SuccessModal'
@@ -281,6 +282,7 @@ export default function App() {
                 <Route path="pending-documents" element={<PendingDocuments />} />
                 <Route path="approved-loans" element={<ApprovedLoans />} />
                 <Route path="disbursed-loans" element={<DisbursedLoans />} />
+                <Route path="check-cibil" element={<CheckCibil />} />
               </Routes>
             </AdminProvider>
           } />
