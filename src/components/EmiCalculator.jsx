@@ -10,8 +10,8 @@ export default function EmiCalculator() {
 
   const [principal, setPrincipal] = useState(1000000) // 10 Lakhs
   const [rate, setRate] = useState(8.5) // 8.5%
-  const [tenureYears, setTenureYears] = useState(15) // 15 years
-  const [tenureMonths, setTenureMonths] = useState(0) // 0 months
+  const [tenureMode, setTenureMode] = useState('Yr') // 'Yr' or 'Mo'
+  const [tenureVal, setTenureVal] = useState(15) // 15 years or 180 months
 
   const [emi, setEmi] = useState(0)
   const [totalInterest, setTotalInterest] = useState(0)
@@ -21,7 +21,7 @@ export default function EmiCalculator() {
     // EMI Calculation
     const P = principal
     const R = rate / 12 / 100
-    const N = (tenureYears * 12) + tenureMonths
+    const N = tenureMode === 'Yr' ? tenureVal * 12 : tenureVal
 
     if (P > 0 && R > 0 && N > 0) {
       const emiVal = (P * R * Math.pow(1 + R, N)) / (Math.pow(1 + R, N) - 1)
@@ -36,7 +36,7 @@ export default function EmiCalculator() {
       setTotalAmount(0)
       setTotalInterest(0)
     }
-  }, [principal, rate, tenureYears, tenureMonths])
+  }, [principal, rate, tenureVal, tenureMode])
 
   // GSAP Animations
   useEffect(() => {
@@ -177,72 +177,53 @@ export default function EmiCalculator() {
                 </div>
               </div>
 
-              {/* Tenure (Years & Months) */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Years Column */}
-                <div>
-                  <div className="flex justify-between items-center mb-4">
-                    <label className="text-[#0f1857] font-bold text-sm md:text-base">Tenure (Years)</label>
-                    <div className="flex items-center bg-blue-50/50 border border-blue-100 rounded-xl px-3 py-1.5 focus-within:border-[#0155AD] focus-within:ring-1 focus-within:ring-[#0155AD] transition-all">
+              {/* Loan Tenure */}
+              <div>
+                <div className="flex justify-between items-center mb-4">
+                  <label className="text-[#0f1857] font-bold text-sm md:text-base">Loan Tenure</label>
+                  
+                  <div className="flex items-center gap-2 md:gap-3">
+                    {/* Toggle */}
+                    <div className="flex bg-blue-50/80 border border-blue-100 rounded-lg overflow-hidden">
+                      {['Mo', 'Yr'].map(m => (
+                        <button key={m} onClick={() => { setTenureMode(m); setTenureVal(m === 'Yr' ? Math.max(1, Math.round(tenureVal / 12)) : tenureVal * 12) }}
+                          className="px-2 py-1 md:px-3 md:py-1.5 text-xs font-bold transition-all cursor-pointer"
+                          style={{ background: tenureMode === m ? '#0155AD' : 'transparent', color: tenureMode === m ? '#fff' : '#0155AD' }}>
+                          {m}
+                        </button>
+                      ))}
+                    </div>
+                    
+                    {/* Input Box */}
+                    <div className="flex items-center bg-blue-50/50 border border-blue-100 rounded-xl px-2 py-1 md:px-4 md:py-2 focus-within:border-[#0155AD] focus-within:ring-1 focus-within:ring-[#0155AD] transition-all">
                       <input
                         type="number"
-                        value={tenureYears}
-                        onChange={(e) => setTenureYears(Number(e.target.value))}
+                        value={tenureVal}
+                        onChange={(e) => setTenureVal(Number(e.target.value))}
                         onBlur={() => {
-                          if (tenureYears < 1) setTenureYears(1);
-                          if (tenureYears > 30) setTenureYears(30);
+                          const min = tenureMode === 'Mo' ? 6 : 1;
+                          const max = tenureMode === 'Mo' ? 360 : 30;
+                          if (tenureVal < min) setTenureVal(min);
+                          if (tenureVal > max) setTenureVal(max);
                         }}
-                        className="bg-transparent text-[#0155AD] font-display font-bold text-lg w-10 text-right outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        className="bg-transparent text-[#0155AD] font-display font-bold text-base md:text-lg w-10 md:w-12 text-center outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       />
-                      <span className="text-[#0155AD] font-display font-bold text-base ml-1">Yr</span>
                     </div>
-                  </div>
-                  <input
-                    type="range"
-                    min="1"
-                    max="30"
-                    step="1"
-                    value={tenureYears}
-                    onChange={(e) => setTenureYears(Number(e.target.value))}
-                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#0197E0]"
-                  />
-                  <div className="flex justify-between text-xs text-gray-400 mt-2 font-medium">
-                    <span>1 Yr</span>
-                    <span>30 Yrs</span>
                   </div>
                 </div>
-
-                {/* Months Column */}
-                <div>
-                  <div className="flex justify-between items-center mb-4">
-                    <label className="text-[#0f1857] font-bold text-sm md:text-base">Tenure (Months)</label>
-                    <div className="flex items-center bg-blue-50/50 border border-blue-100 rounded-xl px-3 py-1.5 focus-within:border-[#0155AD] focus-within:ring-1 focus-within:ring-[#0155AD] transition-all">
-                      <input
-                        type="number"
-                        value={tenureMonths}
-                        onChange={(e) => setTenureMonths(Number(e.target.value))}
-                        onBlur={() => {
-                          if (tenureMonths < 0) setTenureMonths(0);
-                          if (tenureMonths > 11) setTenureMonths(11);
-                        }}
-                        className="bg-transparent text-[#0155AD] font-display font-bold text-lg w-10 text-right outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                      />
-                      <span className="text-[#0155AD] font-display font-bold text-base ml-1">Mo</span>
-                    </div>
-                  </div>
-                  <input
-                    type="range"
-                    min="0"
-                    max="11"
-                    step="1"
-                    value={tenureMonths}
-                    onChange={(e) => setTenureMonths(Number(e.target.value))}
-                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#0197E0]"
-                  />
-                  <div className="flex justify-between text-xs text-gray-400 mt-2 font-medium">
-                    <span>0 Mo</span>
-                    <span>11 Mos</span>
-                  </div>
+                
+                <input
+                  type="range"
+                  min={tenureMode === 'Mo' ? 6 : 1}
+                  max={tenureMode === 'Mo' ? 360 : 30}
+                  step="1"
+                  value={tenureVal}
+                  onChange={(e) => setTenureVal(Number(e.target.value))}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#0197E0]"
+                />
+                <div className="flex justify-between text-xs text-gray-400 mt-2 font-medium">
+                  <span>{tenureMode === 'Mo' ? '6 Mo' : '1 Yr'}</span>
+                  <span>{tenureMode === 'Mo' ? '360 Mos' : '30 Yrs'}</span>
                 </div>
               </div>
 

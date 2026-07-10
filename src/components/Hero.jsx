@@ -3,7 +3,6 @@ import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { Link } from 'react-router-dom'
 import { useModal } from './ModalContext'
-import bgImageMobile from '../assets/image (24).png'
 
 import img1 from '../assets/image (23).png'
 import img2 from '../assets/image (26).png'
@@ -151,9 +150,12 @@ function applyLayerStyle(el, bgType) {
 
 export default function Hero() {
   const heroRef = useRef(null)
-  const imageRef = useRef(null)
+  const layerARef = useRef(null)
+  const layerBRef = useRef(null)
   const textWrapRef = useRef(null)
+  const dynamicTextRef = useRef(null)
   const indexRef = useRef(0)
+  const activeLayer = useRef('A')
   const timerRef = useRef(null)
   const timelineRef = useRef(null)
   const [currentSlide, setCurrentSlide] = useState(0)
@@ -172,21 +174,44 @@ export default function Hero() {
     }
   }, [])
 
-  // ── Sequential slideshow (fade out completely over 5s, then fade in next) ──
+  // ── Typewriter effect for heading ──
   useEffect(() => {
-    const imgEl = imageRef.current
-    if (!imgEl) return
+    const lines = textWrapRef.current?.querySelectorAll('.typewriter-line')
+    if (!lines || lines.length === 0) return
+
+    gsap.set(lines, { clipPath: 'inset(0 100% 0 0)' })
+    gsap.to(lines, {
+      clipPath: 'inset(0 0% 0 0)',
+      duration: 1.2,
+      stagger: 0.3,
+      ease: 'power2.out',
+      delay: 0.1
+    })
+  }, [currentSlide])
+
+  // ── Crossfade slideshow (prevents white gap) ──
+  useEffect(() => {
+    const layerA = layerARef.current
+    const layerB = layerBRef.current
+    if (!layerA || !layerB) return
 
     // Init the first image
-    imgEl.src = SLIDES[0].image
-    applyLayerStyle(imgEl, SLIDES[0].bgType)
-    gsap.set(imgEl, { opacity: 1 })
+    layerA.src = SLIDES[0].image
+    layerA.className = 'hero-bg-dynamic slide-0'
+    applyLayerStyle(layerA, SLIDES[0].bgType)
+    gsap.set(layerA, { opacity: 1, zIndex: 2 })
+
+    // Init second image
+    layerB.src = SLIDES[1].image
+    layerB.className = 'hero-bg-dynamic slide-other'
+    applyLayerStyle(layerB, SLIDES[1].bgType)
+    gsap.set(layerB, { opacity: 0, zIndex: 1 }) // Behind, fully invisible on load!
 
     const advance = () => {
       const nextIndex = (indexRef.current + 1) % SLIDES.length
-      const nextSlide = SLIDES[nextIndex]
+      const front = activeLayer.current === 'A' ? layerA : layerB
+      const back = activeLayer.current === 'A' ? layerB : layerA
 
-      // Kill any active timeline animations to prevent overlaps or speed-ups
       if (timelineRef.current) {
         timelineRef.current.kill()
       }
@@ -194,48 +219,54 @@ export default function Hero() {
       const tl = gsap.timeline({
         onComplete: () => {
           indexRef.current = nextIndex
-          // Hold the new slide for HOLD_MS before advancing again
+          activeLayer.current = activeLayer.current === 'A' ? 'B' : 'A'
+
+          // Prepare the NEW back layer for the NEXT transition
+          const upcomingIndex = (nextIndex + 1) % SLIDES.length
+          front.src = SLIDES[upcomingIndex].image
+          let slideClass = 'slide-other'
+          if (upcomingIndex === 0) slideClass = 'slide-0'
+          else if (upcomingIndex === 4) slideClass = 'slide-5-6'
+          else if (upcomingIndex === 5) slideClass = 'slide-6'
+          front.className = `hero-bg-dynamic ${slideClass}`
+          applyLayerStyle(front, SLIDES[upcomingIndex].bgType)
+          // The new back layer will be invisible and placed behind
+          gsap.set(front, { opacity: 0, zIndex: 1 })
+          gsap.set(back, { zIndex: 2 })
+
           timerRef.current = setTimeout(advance, HOLD_MS)
         }
       })
       timelineRef.current = tl
 
-      // 1. Fade out current image and text together (3.0s)
-      tl.to(imgEl, {
+      // 1. Fade out the dynamic text (1.5s)
+      tl.to(dynamicTextRef.current, {
+        opacity: 0,
+        duration: 1.5,
+        ease: 'power2.inOut'
+      }, 0)
+
+      // 2. Front image fades out completely (3.0s)
+      tl.to(front, {
         opacity: 0,
         duration: 3.0,
         ease: 'power2.inOut'
       }, 0)
 
-      tl.to(textWrapRef.current, {
-        opacity: 0,
+      // 3. Wait 0.10s (pure blank gap), then back image fades in (3.0s)
+      tl.to(back, {
+        opacity: 1,
         duration: 3.0,
         ease: 'power2.inOut'
-      }, 0)
+      }, '+=0.10')
 
-      // 2. Change image src and update text state when fade-out is complete
+      // 4. Swap text state right as the new image starts fading in
       tl.call(() => {
-        imgEl.src = nextSlide.image
-        applyLayerStyle(imgEl, nextSlide.bgType)
-        imgEl.style.opacity = '0' // Restore opacity to 0 since applyLayerStyle clears cssText
         setCurrentSlide(nextIndex)
-      })
-
-      // 3. Fade in new image and new text together (3.0s) slowly without overlapping
-      tl.to(imgEl, {
-        opacity: 1,
-        duration: 3.0,
-        ease: 'power2.inOut'
-      })
-
-      tl.to(textWrapRef.current, {
-        opacity: 1,
-        duration: 3.0,
-        ease: 'power2.inOut'
-      }, '<') // Starts at the same time as the image fade-in
+        gsap.to(dynamicTextRef.current, { opacity: 1, duration: 0.2 })
+      }, null, 3.1)
     }
 
-    // Trigger the first transition after HOLD_MS
     timerRef.current = setTimeout(advance, HOLD_MS)
 
     return () => {
@@ -263,16 +294,9 @@ export default function Hero() {
       }}
     >
 
-      {/* ── BG IMAGE ── */}
-      <img ref={imageRef} alt="" aria-hidden="true" />
-
-      {/* ── MOBILE BACKGROUND IMAGE ── */}
-      <img
-        src={bgImageMobile}
-        alt=""
-        aria-hidden="true"
-        className="hero-bg-mobile"
-      />
+      {/* ── BG IMAGES (Crossfade to prevent white gaps) ── */}
+      <img ref={layerARef} alt="" aria-hidden="true" className="hero-bg-dynamic slide-0" />
+      <img ref={layerBRef} alt="" aria-hidden="true" className="hero-bg-dynamic slide-other" />
 
       {/* Left glow overlay */}
       <div style={{
@@ -319,28 +343,30 @@ export default function Hero() {
             </div>
           )}
 
-          {/* Heading */}
-          {slide.headingLines.length > 0 && (
-            <div className="al hero-heading-text" style={{ marginBottom: '18px' }}>
-              <h1 style={{ fontFamily: "'Inter','Segoe UI',sans-serif", fontWeight: 900, lineHeight: 1.06, margin: 0 }}>
-                {slide.headingLines.map((line, i) => (
-                  <span key={i} style={{ display: 'block', fontSize: 'clamp(1.8rem, 6vw, 3.2rem)', color: line.color, marginTop: i > 0 ? '3px' : 0 }}>
-                    {line.text}
-                  </span>
-                ))}
-              </h1>
-            </div>
-          )}
+          <div ref={dynamicTextRef}>
+            {/* Heading */}
+            {slide.headingLines.length > 0 && (
+              <div className="al hero-heading-text" style={{ marginBottom: '18px' }}>
+                <h1 style={{ fontFamily: "'Inter','Segoe UI',sans-serif", fontWeight: 900, lineHeight: 1.06, margin: 0, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                  {slide.headingLines.map((line, i) => (
+                    <span className="typewriter-line" key={i} style={{ display: 'block', width: 'fit-content', maxWidth: '100%', fontSize: 'clamp(1.8rem, 6vw, 3.2rem)', color: line.color, marginTop: i > 0 ? '3px' : 0 }}>
+                      {line.text}
+                    </span>
+                  ))}
+                </h1>
+              </div>
+            )}
 
-          {/* Subtitle */}
-          {slide.subtitle && (
-            <p className="al" style={{
-              color: '#4f5d7a', fontSize: '0.95rem', lineHeight: 1.80,
-              marginBottom: '28px', maxWidth: '400px',
-            }}>
-              {slide.subtitle}
-            </p>
-          )}
+            {/* Subtitle */}
+            {slide.subtitle && (
+              <p className="al hero-subtitle" style={{
+                color: '#4f5d7a', fontSize: '0.95rem', lineHeight: 1.80,
+                marginBottom: '28px', maxWidth: '400px',
+              }}>
+                {slide.subtitle}
+              </p>
+            )}
+          </div>
 
           {/* CTA Buttons */}
           <div className="al hero-btns" style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '28px' }}>
@@ -389,60 +415,51 @@ export default function Hero() {
             </Link>
           </div>
 
-          {/* Social Proof – only on slide 1 */}
-          {slide.showSocialProof && (
-            <div className="al hero-social-row" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <div className="hero-avatars" style={{ display: 'flex', alignItems: 'center' }}>
-                {[
-                  'https://i.pravatar.cc/40?img=12',
-                  'https://i.pravatar.cc/40?img=25',
-                  'https://i.pravatar.cc/40?img=47',
-                ].map((src, i) => (
-                  <img
-                    key={i} src={src} alt={`Customer ${i + 1}`}
-                    className="hero-avatar-img"
-                    style={{
-                      width: '46px', height: '46px', borderRadius: '50%',
-                      border: '3px solid #fff', objectFit: 'cover',
-                      marginLeft: i === 0 ? 0 : '-14px',
-                      zIndex: 3 - i, position: 'relative', flexShrink: 0,
-                    }}
-                  />
-                ))}
-                <div className="hero-avatar-k" style={{
-                  width: '46px', height: '46px', borderRadius: '50%',
-                  border: '3px solid #fff', background: '#0176C7',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: '#fff', fontSize: '11px', fontWeight: 700,
-                  marginLeft: '-14px', zIndex: 0, position: 'relative', flexShrink: 0,
-                }}>10K+</div>
-              </div>
-              <div style={{ marginTop: '4px' }}>
-                <div style={{ color: '#0176C7', fontWeight: 700, fontSize: '1.05rem', lineHeight: 1.3 }}>
-                  <span>9,000</span>
-                  <span style={{ position: 'relative', top: '-0.45em', fontSize: '0.65em', fontFamily: 'Arial, Helvetica, sans-serif', fontWeight: 700, marginLeft: '2px' }}>+</span>
-                  <span> Happy Customers</span>
-                </div>
-                <div style={{ color: '#6b7a99', fontSize: '0.85rem' }}>Trusted by customers across India</div>
-              </div>
+          {/* Social Proof – static for all slides */}
+          <div className="al hero-social-row" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div className="hero-avatars" style={{ display: 'flex', alignItems: 'center' }}>
+              {[
+                'https://i.pravatar.cc/40?img=12',
+                'https://i.pravatar.cc/40?img=25',
+                'https://i.pravatar.cc/40?img=47',
+              ].map((src, i) => (
+                <img
+                  key={i} src={src} alt={`Customer ${i + 1}`}
+                  className="hero-avatar-img"
+                  style={{
+                    width: '46px', height: '46px', borderRadius: '50%',
+                    border: '3px solid #fff', objectFit: 'cover',
+                    marginLeft: i === 0 ? 0 : '-14px',
+                    zIndex: 3 - i, position: 'relative', flexShrink: 0,
+                  }}
+                />
+              ))}
+              <div className="hero-avatar-k" style={{
+                width: '46px', height: '46px', borderRadius: '50%',
+                border: '3px solid #fff', background: '#0176C7',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                color: '#fff', fontSize: '11px', fontWeight: 700,
+                marginLeft: '-14px', zIndex: 0, position: 'relative', flexShrink: 0,
+              }}>10K+</div>
             </div>
-          )}
+            <div style={{ marginTop: '4px' }}>
+              <div style={{ color: '#0176C7', fontWeight: 700, fontSize: '1.05rem', lineHeight: 1.3 }}>
+                <span>9,000</span>
+                <span style={{ position: 'relative', top: '-0.45em', fontSize: '0.65em', fontFamily: 'Arial, Helvetica, sans-serif', fontWeight: 700, marginLeft: '2px' }}>+</span>
+                <span> Happy Customers</span>
+              </div>
+              <div style={{ color: '#6b7a99', fontSize: '0.85rem' }}>Trusted by customers across India</div>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* ── ALL STYLES ── */}
       <style>{`
-        /* Mobile image: hidden by default on desktop */
-        .hero-bg-mobile {
-          display: none;
-          position: absolute;
-          pointer-events: none;
-        }
-
         /* ── MOBILE (<=900px) ── */
         @media (max-width: 900px) {
           .hero-content-grid {
-            padding: 25px 20px 30px !important;
+            padding: 90px 20px 30px !important;
             min-height: 100vh;
           }
           .hero-left-col {
@@ -452,16 +469,38 @@ export default function Hero() {
             z-index: 5;
           }
 
-          .hero-bg-mobile {
+          .hero-bg-dynamic {
             display: block !important;
-            width: 130%;
-            min-width: 20px;
-            top: 50%;
-            left: auto;
-            right: -8%;
-            transform: translateY(-50%);
-            opacity: 1;
-            z-index: 1;
+            width: 130% !important;
+            min-width: 20px !important;
+            max-width: none !important;
+            height: auto !important;
+            top: 50% !important;
+            margin-top: 0 !important;
+            left: auto !important;
+            right: -8% !important;
+            transform: translateY(-50%) !important;
+            z-index: 1 !important;
+            object-fit: contain !important;
+            transition: top 0.4s ease;
+          }
+
+          .hero-bg-dynamic.slide-other {
+            top: 50% !important;
+            transform: translateY(-50%) scale(0.9) !important;
+          }
+
+          .hero-bg-dynamic.slide-5-6 {
+            top: 45% !important;
+            transform: translateY(-50%) scale(0.85) !important;
+          }
+          .hero-bg-dynamic.slide-6 {
+            top: 48% !important;
+            transform: translateY(-50%) scale(0.85) !important;
+          }
+          .hero-subtitle {
+            color: #1e293b !important;
+            font-weight: 500 !important;
           }
 
           .hero-badge { margin-bottom: 14px !important; padding: 6px 12px !important; }
@@ -496,17 +535,31 @@ export default function Hero() {
         }
 
         @media (max-width: 480px) {
-          .hero-content-grid { padding: 25px 16px 30px !important; min-height: 100vh; }
+          .hero-content-grid { padding: 90px 16px 30px !important; min-height: 100vh; }
           .hero-left-col { width: 55% !important; }
-          .hero-bg-mobile {
-            display: block !important;
-            width: 95%;
-            min-width: 320px;
-            top: 35%;
-            right: -15%;
-            transform: translateY(-50%) scale(1.18);
-            opacity: 1;
-            z-index: 1;
+          .hero-bg-dynamic {
+            width: 95% !important;
+            min-width: 320px !important;
+            top: 35% !important;
+            right: -15% !important;
+            transform: translateY(-50%) scale(1.18) !important;
+          }
+          .hero-bg-dynamic.slide-other {
+            top: 35% !important;
+            transform: translateY(-50%) scale(1.05) !important;
+          }
+
+          .hero-bg-dynamic.slide-5-6 {
+            top: 30% !important;
+            transform: translateY(-50%) scale(0.95) !important;
+          }
+          .hero-bg-dynamic.slide-6 {
+            top: 32% !important;
+            transform: translateY(-50%) scale(0.95) !important;
+          }
+          .hero-subtitle {
+            color: #0f1857 !important;
+            font-weight: 600 !important;
           }
         }
 
