@@ -217,6 +217,7 @@ export default function Hero() {
       tl.call(() => {
         imgEl.src = nextSlide.image
         applyLayerStyle(imgEl, nextSlide.bgType)
+        imgEl.style.opacity = '0' // Restore opacity to 0 since applyLayerStyle clears cssText
         setCurrentSlide(nextIndex)
       })
 
