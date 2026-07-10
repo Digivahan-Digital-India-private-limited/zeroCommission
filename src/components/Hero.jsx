@@ -1,90 +1,230 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { Link } from 'react-router-dom'
 import { useModal } from './ModalContext'
-import bgImage from '../assets/image (23).png'
 import bgImageMobile from '../assets/image (24).png'
+
+import img1 from '../assets/image (23).png'
+import img2 from '../assets/image (26).png'
+import img3 from '../assets/image (27).png'
+import img4 from '../assets/image (28).png'
+import img5 from '../assets/image (29).png'
+import img6 from '../assets/image (30).png'
 
 gsap.registerPlugin(ScrollTrigger)
 
+// ─────────────────────────────────────────────
+//  SLIDE DATA  – add heading / subtitle / etc.
+//  for each image here when user provides text
+// ─────────────────────────────────────────────
+const SLIDES = [
+  {
+    image: img1,
+    bgType: 'right',           // original right-side positioned image
+    badge: "India's Trusted Loan Marketplace",
+    headingLines: [
+      { text: 'Why Pay Brokerage?', color: '#0c1a3a' },
+      { text: 'Earn Commission', color: '#0176C7' },
+      { text: 'Instead.', color: '#0176C7' },
+    ],
+    subtitle: 'Compare offers from 50+ banks & NBFCs. Get the best interest rates, complete paperless processing, and earn commission on eligible loans.',
+    showSocialProof: true,
+  },
+  {
+    image: img2,
+    bgType: 'right-margin',
+    badge: "India's Trusted Loan Marketplace",
+    headingLines: [
+      { text: 'Paise Ki Tension Chhodo,', color: '#0c1a3a' },
+      { text: 'Apne Business', color: '#0176C7' },
+      { text: 'Ko Aage Badhao.', color: '#0176C7' },
+    ],
+    subtitle: 'Zero Commission Business Loan ke saath, aapke sapno ko milta hai sahi sahara.',
+    showSocialProof: false,
+  },
+  {
+    image: img3,
+    bgType: 'right-margin',
+    badge: "India's Trusted Loan Marketplace",
+    headingLines: [
+      { text: 'Sapne Dekho.', color: '#0c1a3a' },
+      { text: 'Duniya Ghumo.', color: '#0c1a3a' },
+      { text: 'Zero Commission', color: '#0176C7' },
+      { text: 'Ke Saath!', color: '#0176C7' },
+    ],
+    subtitle: 'World tour ka sapna ho ya koi bhi personal need – Personal Loan ke saath kijiye apne plans ko reality.',
+    showSocialProof: false,
+  },
+  {
+    image: img4,
+    bgType: 'right-margin',
+    badge: "India's Trusted Loan Marketplace",
+    headingLines: [
+      { text: 'Apply Your Loan.', color: '#0c1a3a' },
+      { text: 'Earn Your', color: '#0176C7' },
+      { text: 'Commission.', color: '#0176C7' },
+    ],
+    subtitle: 'At Zero Commission, you get 100% of your loan amount and earn your commission – because your money belongs to you.',
+    showSocialProof: false,
+  },
+  {
+    image: img5,
+    bgType: 'right-shifted',
+    badge: "India's Trusted Loan Marketplace",
+    headingLines: [
+      { text: 'Your Loan.', color: '#0c1a3a' },
+      { text: 'Your Money.', color: '#0c1a3a' },
+      { text: 'Zero Commission.', color: '#0176C7' },
+    ],
+    subtitle: 'We give you 100% of your loan amount without any commission.',
+    showSocialProof: false,
+  },
+  {
+    image: img6,
+    bgType: 'right-margin',
+    badge: "India's Trusted Loan Marketplace",
+    headingLines: [
+      { text: 'Why Pay Brokerage?', color: '#0c1a3a' },
+      { text: 'Earn Commission', color: '#0176C7' },
+      { text: 'Instead.', color: '#0176C7' },
+    ],
+    subtitle: 'Compare offers from 50+ banks & NBFCs. Get the best interest rates, complete paperless processing, and earn commission on eligible loans.',
+    showSocialProof: false,
+  },
+]
+
+const HOLD_MS = 3000
+const FADE_MS = 3500
+
+// Apply inline styles based on bgType
+function applyLayerStyle(el, bgType) {
+  if (!el) return
+
+  // Clear any previously set styles first to avoid conflicts
+  el.style.cssText = ''
+
+  if (bgType === 'cover') {
+    // Make it a full background cover
+    el.style.position = 'absolute'
+    el.style.top = '60px'
+    el.style.left = '0'
+    el.style.right = '0'
+    el.style.bottom = '60px'
+    el.style.width = '100%'
+    el.style.height = 'calc(100% - 120px)'
+    el.style.objectFit = 'contain'
+    el.style.objectPosition = 'center top'
+    el.style.zIndex = '1'
+    el.style.pointerEvents = 'none'
+    el.style.mixBlendMode = 'multiply'
+    el.style.backgroundColor = 'transparent'
+  } else if (bgType === 'right' || bgType === 'right-margin' || bgType === 'right-shifted') {
+    // 'right' / 'right-margin' / 'right-shifted' – desktop style
+    el.style.position = 'absolute'
+    el.style.inset = ''
+    el.style.top = '50%'
+    el.style.marginTop = bgType === 'right-margin' ? '60px' : '0px'
+    
+    // Shift the 5 images towards the right to reduce right margin
+    if (bgType === 'right-margin' || bgType === 'right-shifted') {
+      el.style.left = '67%'
+    } else {
+      el.style.left = '62%' // original for image 23
+    }
+    
+    el.style.transform = 'translate(-50%, -50%)'
+    el.style.width = '74%'
+    el.style.height = 'auto'
+    el.style.objectFit = 'contain'
+    el.style.objectPosition = ''
+    el.style.maxWidth = '980px'
+    el.style.minWidth = '450px'
+    el.style.filter = 'drop-shadow(0 30px 60px rgba(1,100,200,0.18))'
+    el.style.zIndex = '1'
+    el.style.display = 'block'
+    el.style.pointerEvents = 'none'
+    el.style.backgroundColor = 'transparent'
+    el.style.mixBlendMode = 'multiply'
+  }
+}
+
 export default function Hero() {
   const heroRef = useRef(null)
-  const bgRef = useRef(null)
+  const layerARef = useRef(null)
+  const layerBRef = useRef(null)
+  const textWrapRef = useRef(null)
+  const indexRef = useRef(0)
+  const activeLayer = useRef('A')
+  const timerRef = useRef(null)
+  const [currentSlide, setCurrentSlide] = useState(0)
   const { openModal } = useModal()
 
+  // ── Entry animations ──
   useEffect(() => {
     const h = heroRef.current
     if (!h) return
-
     gsap.set(h.querySelectorAll('.al'), { opacity: 0, x: -45 })
-    gsap.set(h.querySelectorAll('.ar'), { opacity: 0, x: 45 })
-    gsap.set(bgRef.current, { opacity: 0 })
-
     const tl = gsap.timeline({ delay: 0.15 })
-    tl.to(bgRef.current, { opacity: 1, duration: 1.1, ease: 'power3.out' }, 0)
     tl.to(h.querySelectorAll('.al'), { opacity: 1, x: 0, duration: 0.75, stagger: 0.11, ease: 'power3.out' }, 0.2)
-    tl.to(h.querySelectorAll('.ar'), { opacity: 1, x: 0, duration: 0.75, stagger: 0.11, ease: 'power3.out' }, 0.3)
-
     return () => { tl.kill(); ScrollTrigger.getAll().forEach(t => t.kill()) }
   }, [])
 
-  const features = [
-    {
-      icon: (
-        <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
-          <rect x="5" y="2" width="11" height="16" rx="2" fill="#dbeafe" stroke="#2563eb" strokeWidth="1.5" />
-          <path d="M8 7h5M8 10h5M8 13h3" stroke="#2563eb" strokeWidth="1.5" strokeLinecap="round" />
-        </svg>
-      ),
-      title: '100% Paperless',
-      desc: 'Digital & hassle-free loan process',
-      bg: '#eff6ff',
-    },
-    {
-      icon: (
-        <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
-          <path d="M3 21V9l9-6 9 6v12" fill="#dcfce7" stroke="#16a34a" strokeWidth="1.5" strokeLinejoin="round" />
-          <rect x="9" y="13" width="6" height="8" rx="1" fill="#bbf7d0" stroke="#16a34a" strokeWidth="1.5" />
-        </svg>
-      ),
-      title: '50+ Bank Partners',
-      desc: 'Compare from top banks & NBFCs',
-      bg: '#f0fdf4',
-    },
-    {
-      icon: (
-        <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="9" fill="#fff7ed" stroke="#f97316" strokeWidth="1.5" />
-          <text x="12" y="16.5" textAnchor="middle" fontSize="9" fill="#f97316" fontWeight="bold">%</text>
-        </svg>
-      ),
-      title: 'Lowest Interest Rates',
-      desc: 'Get the best rates specially for you',
-      bg: '#fff7ed',
-    },
-    {
-      icon: (
-        <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
-          <path d="M13 3L4 14h7l-1 7 9-11h-7l1-7z" fill="#fefce8" stroke="#ca8a04" strokeWidth="1.5" strokeLinejoin="round" />
-        </svg>
-      ),
-      title: 'Quick Approval',
-      desc: 'Approval in 24 hours* in most cases',
-      bg: '#fefce8',
-    },
-    {
-      icon: (
-        <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
-          <path d="M12 3l8 4v5c0 4.97-3.64 8.22-8 9-4.36-.78-8-4.03-8-9V7l8-4z" fill="#f0fdf4" stroke="#16a34a" strokeWidth="1.5" />
-          <path d="M9 12l2 2 4-4" stroke="#16a34a" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      ),
-      title: 'Zero Hidden Charges',
-      desc: 'Transparent process with no extra fees',
-      bg: '#f0fdf4',
-    },
-  ]
+  // ── Crossfade slideshow + text fade ──
+  useEffect(() => {
+    const layerA = layerARef.current
+    const layerB = layerBRef.current
+    if (!layerA || !layerB) return
+
+    // Init layer A
+    layerA.src = SLIDES[0].image
+    applyLayerStyle(layerA, SLIDES[0].bgType)
+    gsap.set(layerA, { opacity: 1 })
+
+    // Init layer B (pre-load next)
+    layerB.src = SLIDES[1].image
+    applyLayerStyle(layerB, SLIDES[1].bgType)
+    gsap.set(layerB, { opacity: 0 })
+
+    const advance = () => {
+      const nextIndex = (indexRef.current + 1) % SLIDES.length
+      const front = activeLayer.current === 'A' ? layerA : layerB
+      const back = activeLayer.current === 'A' ? layerB : layerA
+      const nextSlide = SLIDES[nextIndex]
+
+      // Prepare back layer for next slide
+      back.src = nextSlide.image
+      applyLayerStyle(back, nextSlide.bgType)
+
+      // Fade out old text quickly, then fade in new text slowly alongside the new image
+      gsap.to(textWrapRef.current, {
+        opacity: 0, duration: 0.5, ease: 'power2.inOut',
+        onComplete: () => {
+          setCurrentSlide(nextIndex)
+          gsap.to(textWrapRef.current, { opacity: 1, duration: (FADE_MS / 1000) - 0.5, ease: 'power2.inOut' })
+        }
+      })
+
+      // Crossfade background images
+      gsap.to(back, { opacity: 1, duration: FADE_MS / 1000, ease: 'power2.inOut' })
+      gsap.to(front, {
+        opacity: 0, duration: FADE_MS / 1000, ease: 'power2.inOut',
+        onComplete: () => {
+          indexRef.current = nextIndex
+          activeLayer.current = activeLayer.current === 'A' ? 'B' : 'A'
+        }
+      })
+    }
+
+    timerRef.current = setTimeout(function loop() {
+      advance()
+      timerRef.current = setTimeout(loop, HOLD_MS + FADE_MS)
+    }, HOLD_MS)
+
+    return () => clearTimeout(timerRef.current)
+  }, [])
+
+  const slide = SLIDES[currentSlide]
 
   return (
     <section
@@ -101,24 +241,21 @@ export default function Hero() {
       }}
     >
 
-      {/* ── DESKTOP BACKGROUND IMAGE (absolute positioned) ── */}
-      <img
-        ref={bgRef}
-        src={bgImage}
-        alt=""
-        aria-hidden="true"
-        className="hero-bg-image hero-bg-desktop"
-      />
+      {/* ── BG LAYER A ── */}
+      <img ref={layerARef} alt="" aria-hidden="true" />
+
+      {/* ── BG LAYER B ── */}
+      <img ref={layerBRef} alt="" aria-hidden="true" style={{ opacity: 0 }} />
 
       {/* ── MOBILE BACKGROUND IMAGE ── */}
       <img
         src={bgImageMobile}
         alt=""
         aria-hidden="true"
-        className="hero-bg-image hero-bg-mobile"
+        className="hero-bg-mobile"
       />
 
-      {/* Left glow overlay for text readability */}
+      {/* Left glow overlay */}
       <div style={{
         position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 2,
         background: 'radial-gradient(ellipse 55% 80% at 18% 50%, rgba(232,243,255,0.92) 0%, rgba(232,243,255,0.60) 40%, transparent 70%)',
@@ -131,7 +268,7 @@ export default function Hero() {
       }} />
 
       {/* ══════════════════════
-          MAIN CONTENT GRID
+          MAIN CONTENT
       ══════════════════════ */}
       <div
         className="hero-content-grid"
@@ -140,54 +277,51 @@ export default function Hero() {
           width: '100%', maxWidth: '1440px',
           margin: '0 auto',
           padding: '100px 40px 140px',
-          display: 'grid',
-          gridTemplateColumns: '1fr auto',
-          gap: '32px',
-          alignItems: 'flex-start',
         }}
       >
-
-        {/* ── LEFT: Text & CTAs ── */}
-        <div className="hero-left-col" style={{ maxWidth: '560px' }}>
+        {/* ── LEFT: Text & CTAs (fades per slide) ── */}
+        <div ref={textWrapRef} className="hero-left-col" style={{ maxWidth: '560px' }}>
 
           {/* Badge */}
-          <div className="al hero-badge" style={{
-            display: 'inline-flex', alignItems: 'center', gap: '8px',
-            marginBottom: '22px',
-            padding: '8px 18px',
-            borderRadius: '50px',
-            background: 'rgba(1,118,199,0.10)',
-            border: '1.5px solid rgba(1,118,199,0.30)',
-          }}>
-            <svg width="15" height="15" fill="none" viewBox="0 0 24 24">
-              <path d="M12 3l8 4v5c0 5-4 8-8 9-4-1-8-4-8-9V7l8-4z" fill="#0176C7" />
-            </svg>
-            <span style={{ color: '#0155AD', fontSize: '11px', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase' }}>
-              India's Trusted Loan Marketplace
-            </span>
-          </div>
+          {slide.badge && (
+            <div className="al hero-badge" style={{
+              display: 'inline-flex', alignItems: 'center', gap: '8px',
+              marginBottom: '22px', padding: '8px 18px',
+              borderRadius: '50px',
+              background: 'rgba(1,118,199,0.10)',
+              border: '1.5px solid rgba(1,118,199,0.30)',
+            }}>
+              <svg width="15" height="15" fill="none" viewBox="0 0 24 24">
+                <path d="M12 3l8 4v5c0 5-4 8-8 9-4-1-8-4-8-9V7l8-4z" fill="#0176C7" />
+              </svg>
+              <span style={{ color: '#0155AD', fontSize: '11px', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase' }}>
+                {slide.badge}
+              </span>
+            </div>
+          )}
 
           {/* Heading */}
-          <div className="al hero-heading-text" style={{ marginBottom: '18px' }}>
-            <h1 style={{
-              fontFamily: "'Inter','Segoe UI',sans-serif",
-              fontWeight: 900, lineHeight: 1.06, margin: 0,
-            }}>
-              <span style={{ display: 'block', fontSize: 'clamp(1.8rem, 6vw, 3.2rem)', color: '#0c1a3a' }}>Why Pay Brokerage?</span>
-              <span style={{ display: 'block', fontSize: 'clamp(1.8rem, 6vw, 3.2rem)', color: '#0176C7', marginTop: '3px' }}>Earn Commission</span>
-              <span style={{ display: 'block', fontSize: 'clamp(1.8rem, 6vw, 3.2rem)', color: '#0176C7' }}>Instead.</span>
-            </h1>
-          </div>
+          {slide.headingLines.length > 0 && (
+            <div className="al hero-heading-text" style={{ marginBottom: '18px' }}>
+              <h1 style={{ fontFamily: "'Inter','Segoe UI',sans-serif", fontWeight: 900, lineHeight: 1.06, margin: 0 }}>
+                {slide.headingLines.map((line, i) => (
+                  <span key={i} style={{ display: 'block', fontSize: 'clamp(1.8rem, 6vw, 3.2rem)', color: line.color, marginTop: i > 0 ? '3px' : 0 }}>
+                    {line.text}
+                  </span>
+                ))}
+              </h1>
+            </div>
+          )}
 
           {/* Subtitle */}
-          <p className="al" style={{
-            color: '#4f5d7a', fontSize: '0.95rem', lineHeight: 1.80,
-            marginBottom: '28px', maxWidth: '400px',
-          }}>
-            Compare offers from 50+ banks &amp; NBFCs. Get the best
-            interest rates, complete paperless processing, and
-            earn commission on eligible loans.
-          </p>
+          {slide.subtitle && (
+            <p className="al" style={{
+              color: '#4f5d7a', fontSize: '0.95rem', lineHeight: 1.80,
+              marginBottom: '28px', maxWidth: '400px',
+            }}>
+              {slide.subtitle}
+            </p>
+          )}
 
           {/* CTA Buttons */}
           <div className="al hero-btns" style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '28px' }}>
@@ -217,8 +351,7 @@ export default function Hero() {
               className="hero-btn-outline"
               style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                background: 'rgba(255,255,255,0.90)',
-                backdropFilter: 'blur(8px)',
+                background: 'rgba(255,255,255,0.90)', backdropFilter: 'blur(8px)',
                 color: '#0c1a3a', fontWeight: 600,
                 padding: '13px 28px', borderRadius: '12px',
                 fontSize: '0.9rem',
@@ -237,156 +370,72 @@ export default function Hero() {
             </Link>
           </div>
 
-          {/* Social Proof */}
-          <div className="al hero-social-row" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <div className="hero-avatars" style={{ display: 'flex', alignItems: 'center' }}>
-              {[
-                'https://i.pravatar.cc/40?img=12',
-                'https://i.pravatar.cc/40?img=25',
-                'https://i.pravatar.cc/40?img=47',
-              ].map((src, i) => (
-                <img
-                  key={i}
-                  src={src}
-                  alt={`Customer ${i + 1}`}
-                  className="hero-avatar-img"
-                  style={{
-                    width: '46px', height: '46px',
-                    borderRadius: '50%',
-                    border: '3px solid #fff',
-                    objectFit: 'cover',
-                    marginLeft: i === 0 ? 0 : '-14px',
-                    zIndex: 3 - i,
-                    position: 'relative',
-                    flexShrink: 0,
-                  }}
-                />
-              ))}
-              <div className="hero-avatar-k" style={{
-                width: '46px', height: '46px', borderRadius: '50%',
-                border: '3px solid #fff', background: '#0176C7',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: '#fff', fontSize: '11px', fontWeight: 700,
-                marginLeft: '-14px', zIndex: 0, position: 'relative',
-                flexShrink: 0,
-              }}>10K+</div>
-            </div>
-            <div className="hero-social-text" style={{ marginTop: '4px' }}>
-            <div className="hero-social-title"
-                  style={{ color: '#0176C7', fontWeight: 700, fontSize: '1.05rem', lineHeight: 1.3 }} > <span>9,000</span> <span
-                  style={{ position: 'relative', top: '-0.45em', fontSize: '0.65em', fontFamily: 'Arial, Helvetica, sans-serif', fontWeight: 700, marginLeft: '2px' }}>
-                  +
-                  </span>
+          {/* Social Proof – only on slide 1 */}
+          {slide.showSocialProof && (
+            <div className="al hero-social-row" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div className="hero-avatars" style={{ display: 'flex', alignItems: 'center' }}>
+                {[
+                  'https://i.pravatar.cc/40?img=12',
+                  'https://i.pravatar.cc/40?img=25',
+                  'https://i.pravatar.cc/40?img=47',
+                ].map((src, i) => (
+                  <img
+                    key={i} src={src} alt={`Customer ${i + 1}`}
+                    className="hero-avatar-img"
+                    style={{
+                      width: '46px', height: '46px', borderRadius: '50%',
+                      border: '3px solid #fff', objectFit: 'cover',
+                      marginLeft: i === 0 ? 0 : '-14px',
+                      zIndex: 3 - i, position: 'relative', flexShrink: 0,
+                    }}
+                  />
+                ))}
+                <div className="hero-avatar-k" style={{
+                  width: '46px', height: '46px', borderRadius: '50%',
+                  border: '3px solid #fff', background: '#0176C7',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: '#fff', fontSize: '11px', fontWeight: 700,
+                  marginLeft: '-14px', zIndex: 0, position: 'relative', flexShrink: 0,
+                }}>10K+</div>
+              </div>
+              <div style={{ marginTop: '4px' }}>
+                <div style={{ color: '#0176C7', fontWeight: 700, fontSize: '1.05rem', lineHeight: 1.3 }}>
+                  <span>9,000</span>
+                  <span style={{ position: 'relative', top: '-0.45em', fontSize: '0.65em', fontFamily: 'Arial, Helvetica, sans-serif', fontWeight: 700, marginLeft: '2px' }}>+</span>
                   <span> Happy Customers</span>
-              </div> 
-              <div className="hero-social-desc" style={{ color: '#6b7a99', fontSize: '0.85rem' }}>Trusted by customers across India</div>
-            </div>
-          </div>
-        </div>
-
-        {/* ── RIGHT: Feature Cards (desktop only, hidden on mobile via CSS) ── */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '270px' }}
-          className="hero-cards-col">
-          {features.map((f, i) => (
-            <div
-              key={i}
-              className="ar"
-              style={{
-                display: 'flex', alignItems: 'center', gap: '14px',
-                background: 'rgba(255,255,255,0.92)',
-                backdropFilter: 'blur(10px)',
-                borderRadius: '16px',
-                padding: '14px 16px',
-                boxShadow: '0 2px 16px rgba(0,0,0,0.07)',
-                border: '1px solid rgba(255,255,255,0.80)',
-                transition: 'transform 0.2s,box-shadow 0.2s',
-                cursor: 'default',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.11)' }}
-              onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 2px 16px rgba(0,0,0,0.07)' }}
-            >
-              <div style={{
-                flexShrink: 0, width: '44px', height: '44px',
-                borderRadius: '12px', background: f.bg,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                {f.icon}
-              </div>
-              <div>
-                <div style={{ fontWeight: 700, fontSize: '0.88rem', color: '#0c1a3a', lineHeight: 1.35 }}>{f.title}</div>
-                <div style={{ color: '#8a93a8', fontSize: '0.78rem', lineHeight: 1.4 }}>{f.desc}</div>
+                </div>
+                <div style={{ color: '#6b7a99', fontSize: '0.85rem' }}>Trusted by customers across India</div>
               </div>
             </div>
-          ))}
+          )}
         </div>
-
       </div>
 
       {/* ── ALL STYLES ── */}
       <style>{`
-        /* Desktop: absolute positioned background image */
-        .hero-bg-image {
-          position: absolute;
-          top: 50%;
-          height: auto;
-          object-fit: contain;
-          pointer-events: none;
-          z-index: 1;
-          filter: drop-shadow(0 30px 60px rgba(1,100,200,0.18));
-        }
-
-        /* Desktop image */
-        .hero-bg-desktop {
-          left: 62%;
-          transform: translate(-50%, -50%);
-          width: 74%;
-          max-width: 980px;
-          min-width: 450px;
-        }
-
         /* Mobile image: hidden by default on desktop */
         .hero-bg-mobile {
           display: none;
-        }
-
-        /* ── TABLET (900-1024px) ── */
-        @media (max-width: 1024px) and (min-width: 901px) {
-          .hero-bg-image {
-            width: 78%;
-            top: 100px;
-            transform: translateX(-35%);
-            opacity: 0.8;
-          }
+          position: absolute;
+          pointer-events: none;
         }
 
         /* ── MOBILE (<=900px) ── */
         @media (max-width: 900px) {
-          /* Single column layout */
           .hero-content-grid {
-            grid-template-columns: 1fr !important;
             padding: 25px 20px 30px !important;
-            gap: 16px !important;
-            align-items: center !important;
             min-height: 100vh;
           }
-
-          /* Constrain left column text width so it fits beside the image */
           .hero-left-col {
-            width: 40% !important;
+            width: 45% !important;
             max-width: none !important;
             position: relative;
             z-index: 5;
           }
 
-          /* Hide desktop image on mobile */
-          .hero-bg-desktop {
-            display: none !important;
-          }
-
-          /* Show mobile image, positioned right side vertically centered */
           .hero-bg-mobile {
             display: block !important;
-            width: 1300%;
+            width: 130%;
             min-width: 20px;
             top: 50%;
             left: auto;
@@ -396,25 +445,10 @@ export default function Hero() {
             z-index: 1;
           }
 
-          /* Hide right feature cards column */
-          .hero-cards-col {
-            display: none !important;
-          }
+          .hero-badge { margin-bottom: 14px !important; padding: 6px 12px !important; }
+          .hero-badge span { font-size: 8px !important; }
+          .hero-heading-text { margin-bottom: 12px !important; }
 
-          /* Badge styling adjust */
-          .hero-badge {
-            margin-bottom: 14px !important;
-            padding: 6px 12px !important;
-          }
-          .hero-badge span {
-            font-size: 8px !important;
-          }
-
-          .hero-heading-text {
-            margin-bottom: 12px !important;
-          }
-
-          /* Full-width buttons stacked */
           .hero-btns {
             flex-direction: column !important;
             align-items: flex-start !important;
@@ -428,8 +462,6 @@ export default function Hero() {
             padding: 12px 16px !important;
             font-size: 0.88rem !important;
           }
-
-          /* Social proof: avatars on top, text below (match photo) */
           .hero-social-row {
             flex-direction: column !important;
             align-items: flex-start !important;
@@ -437,51 +469,26 @@ export default function Hero() {
           }
           .hero-avatar-img,
           .hero-avatar-k {
-            width: 38px !important;
-            height: 38px !important;
-            border-width: 2px !important;
-            font-size: 9px !important;
+            width: 38px !important; height: 38px !important;
+            border-width: 2px !important; font-size: 9px !important;
           }
-          .hero-avatar-k {
-            margin-left: -10px !important;
-          }
-          .hero-avatar-img:not(:first-child) {
-            margin-left: -10px !important;
-          }
-          .hero-social-title {
-            font-size: 0.9rem !important;
-            font-weight: 700 !important;
-            line-height: 1.2 !important;
-          }
-          .hero-social-desc {
-            font-size: 0.72rem !important;
-            color: #6b7a99 !important;
-          }
+          .hero-avatar-k { margin-left: -10px !important; }
+          .hero-avatar-img:not(:first-child) { margin-left: -10px !important; }
         }
 
         @media (max-width: 480px) {
-          .hero-content-grid {
-            padding: 25px 16px 30px !important;
-            min-height: 100vh;
+          .hero-content-grid { padding: 25px 16px 30px !important; min-height: 100vh; }
+          .hero-left-col { width: 55% !important; }
+          .hero-bg-mobile {
+            display: block !important;
+            width: 95%;
+            min-width: 320px;
+            top: 35%;
+            right: -15%;
+            transform: translateY(-50%) scale(1.18);
+            opacity: 1;
+            z-index: 1;
           }
-          .hero-left-col {
-            width: 50% !important;
-          }
-          .hero-bg-mobile{
-          display:block !important;
-
-          width:95%;
-          min-width:320px;
-
-          top:35%;
-          right:-15%;
-
-          transform:translateY(-50%) scale(1.18);
-
-          opacity:1;
-
-          z-index:1;
-      }
         }
 
         /* ── Wave animations ── */
