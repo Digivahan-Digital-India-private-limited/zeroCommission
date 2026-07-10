@@ -125,14 +125,14 @@ function applyLayerStyle(el, bgType) {
     el.style.inset = ''
     el.style.top = '50%'
     el.style.marginTop = bgType === 'right-margin' ? '60px' : '0px'
-    
+
     // Shift the 5 images towards the right to reduce right margin
     if (bgType === 'right-margin' || bgType === 'right-shifted') {
       el.style.left = '67%'
     } else {
       el.style.left = '62%' // original for image 23
     }
-    
+
     el.style.transform = 'translate(-50%, -50%)'
     el.style.width = '74%'
     el.style.height = 'auto'
@@ -151,12 +151,11 @@ function applyLayerStyle(el, bgType) {
 
 export default function Hero() {
   const heroRef = useRef(null)
-  const layerARef = useRef(null)
-  const layerBRef = useRef(null)
+  const imageRef = useRef(null)
   const textWrapRef = useRef(null)
   const indexRef = useRef(0)
-  const activeLayer = useRef('A')
   const timerRef = useRef(null)
+  const timelineRef = useRef(null)
   const [currentSlide, setCurrentSlide] = useState(0)
   const { openModal } = useModal()
 
@@ -167,61 +166,83 @@ export default function Hero() {
     gsap.set(h.querySelectorAll('.al'), { opacity: 0, x: -45 })
     const tl = gsap.timeline({ delay: 0.15 })
     tl.to(h.querySelectorAll('.al'), { opacity: 1, x: 0, duration: 0.75, stagger: 0.11, ease: 'power3.out' }, 0.2)
-    return () => { tl.kill(); ScrollTrigger.getAll().forEach(t => t.kill()) }
+    return () => {
+      tl.kill()
+      ScrollTrigger.getAll().forEach(t => t.kill())
+    }
   }, [])
 
-  // ── Crossfade slideshow + text fade ──
+  // ── Sequential slideshow (fade out completely over 5s, then fade in next) ──
   useEffect(() => {
-    const layerA = layerARef.current
-    const layerB = layerBRef.current
-    if (!layerA || !layerB) return
+    const imgEl = imageRef.current
+    if (!imgEl) return
 
-    // Init layer A
-    layerA.src = SLIDES[0].image
-    applyLayerStyle(layerA, SLIDES[0].bgType)
-    gsap.set(layerA, { opacity: 1 })
-
-    // Init layer B (pre-load next)
-    layerB.src = SLIDES[1].image
-    applyLayerStyle(layerB, SLIDES[1].bgType)
-    gsap.set(layerB, { opacity: 0 })
+    // Init the first image
+    imgEl.src = SLIDES[0].image
+    applyLayerStyle(imgEl, SLIDES[0].bgType)
+    gsap.set(imgEl, { opacity: 1 })
 
     const advance = () => {
       const nextIndex = (indexRef.current + 1) % SLIDES.length
-      const front = activeLayer.current === 'A' ? layerA : layerB
-      const back = activeLayer.current === 'A' ? layerB : layerA
       const nextSlide = SLIDES[nextIndex]
 
-      // Prepare back layer for next slide
-      back.src = nextSlide.image
-      applyLayerStyle(back, nextSlide.bgType)
+      // Kill any active timeline animations to prevent overlaps or speed-ups
+      if (timelineRef.current) {
+        timelineRef.current.kill()
+      }
 
-      // Fade out old text quickly, then fade in new text slowly alongside the new image
-      gsap.to(textWrapRef.current, {
-        opacity: 0, duration: 0.5, ease: 'power2.inOut',
-        onComplete: () => {
-          setCurrentSlide(nextIndex)
-          gsap.to(textWrapRef.current, { opacity: 1, duration: (FADE_MS / 1000) - 0.5, ease: 'power2.inOut' })
-        }
-      })
-
-      // Crossfade background images
-      gsap.to(back, { opacity: 1, duration: FADE_MS / 1000, ease: 'power2.inOut' })
-      gsap.to(front, {
-        opacity: 0, duration: FADE_MS / 1000, ease: 'power2.inOut',
+      const tl = gsap.timeline({
         onComplete: () => {
           indexRef.current = nextIndex
-          activeLayer.current = activeLayer.current === 'A' ? 'B' : 'A'
+          // Hold the new slide for HOLD_MS before advancing again
+          timerRef.current = setTimeout(advance, HOLD_MS)
         }
       })
+      timelineRef.current = tl
+
+      // 1. Fade out current image and text together (3.0s)
+      tl.to(imgEl, {
+        opacity: 0,
+        duration: 3.0,
+        ease: 'power2.inOut'
+      }, 0)
+
+      tl.to(textWrapRef.current, {
+        opacity: 0,
+        duration: 3.0,
+        ease: 'power2.inOut'
+      }, 0)
+
+      // 2. Change image src and update text state when fade-out is complete
+      tl.call(() => {
+        imgEl.src = nextSlide.image
+        applyLayerStyle(imgEl, nextSlide.bgType)
+        setCurrentSlide(nextIndex)
+      })
+
+      // 3. Fade in new image and new text together (3.0s) slowly without overlapping
+      tl.to(imgEl, {
+        opacity: 1,
+        duration: 3.0,
+        ease: 'power2.inOut'
+      })
+
+      tl.to(textWrapRef.current, {
+        opacity: 1,
+        duration: 3.0,
+        ease: 'power2.inOut'
+      }, '<') // Starts at the same time as the image fade-in
     }
 
-    timerRef.current = setTimeout(function loop() {
-      advance()
-      timerRef.current = setTimeout(loop, HOLD_MS + FADE_MS)
-    }, HOLD_MS)
+    // Trigger the first transition after HOLD_MS
+    timerRef.current = setTimeout(advance, HOLD_MS)
 
-    return () => clearTimeout(timerRef.current)
+    return () => {
+      clearTimeout(timerRef.current)
+      if (timelineRef.current) {
+        timelineRef.current.kill()
+      }
+    }
   }, [])
 
   const slide = SLIDES[currentSlide]
@@ -241,11 +262,8 @@ export default function Hero() {
       }}
     >
 
-      {/* ── BG LAYER A ── */}
-      <img ref={layerARef} alt="" aria-hidden="true" />
-
-      {/* ── BG LAYER B ── */}
-      <img ref={layerBRef} alt="" aria-hidden="true" style={{ opacity: 0 }} />
+      {/* ── BG IMAGE ── */}
+      <img ref={imageRef} alt="" aria-hidden="true" />
 
       {/* ── MOBILE BACKGROUND IMAGE ── */}
       <img
