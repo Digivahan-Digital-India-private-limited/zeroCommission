@@ -242,29 +242,29 @@ export default function Hero() {
       // 1. Fade out the dynamic text (1.5s)
       tl.to(dynamicTextRef.current, {
         opacity: 0,
-        duration: 1.5,
+        duration: 0.50,
         ease: 'power2.inOut'
       }, 0)
 
-      // 2. Front image fades out completely (3.0s)
+      // 2. Front image fades out completely
       tl.to(front, {
         opacity: 0,
-        duration: 3.0,
+        duration: 0.50,
         ease: 'power2.inOut'
       }, 0)
 
       // 3. Wait 0.10s (pure blank gap), then back image fades in (3.0s)
       tl.to(back, {
         opacity: 1,
-        duration: 3.0,
+        duration: 0.50,
         ease: 'power2.inOut'
-      }, '+=0.10')
+      }, '+=0.05')
 
       // 4. Swap text state right as the new image starts fading in
       tl.call(() => {
         setCurrentSlide(nextIndex)
         gsap.to(dynamicTextRef.current, { opacity: 1, duration: 0.2 })
-      }, null, 3.1)
+      }, null, 0.50)
     }
 
     timerRef.current = setTimeout(advance, HOLD_MS)
