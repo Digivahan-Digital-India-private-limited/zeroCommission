@@ -2,8 +2,9 @@ import React, { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Building2, Shield, Users, IndianRupee, Landmark, ShieldCheck, CheckCircle2, Play, ArrowRight, Star, FileText, Target, Award, Clock, CheckCircle } from 'lucide-react';
-import aboutCardImg from '../assets/about_us_hero.webp';
 import { Link } from 'react-router-dom';
+import LazyImage from './LazyImage';
+import aboutCardImg from '../assets/about_us_hero.webp';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -138,7 +139,7 @@ export default function About() {
           {/* Right Column */}
           <div className="lg:w-[55%] relative w-full flex justify-center mt-10 lg:mt-0">
             <div className="relative z-10 w-full max-w-[600px] xl:max-w-[700px]">
-              <img 
+              <LazyImage 
                 src={aboutCardImg} 
                 alt="Professional Loan Advisors" 
                 className="w-full h-[500px] lg:h-[650px] object-cover object-center rounded-[32px] shadow-2xl relative z-10" 

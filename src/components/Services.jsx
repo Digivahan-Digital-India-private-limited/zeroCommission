@@ -5,6 +5,7 @@ import { Home, Briefcase, Car, GraduationCap, HeartHandshake, Plane, CheckCircle
 import { useModal } from './ModalContext'
 import ServicesHero from './ServicesHero'
 import EligibilityCriteria from './EligibilityCriteria'
+import LazyImage from './LazyImage'
 import homeLoanImg from '../assets/Home Loan.webp'
 import carLoanImg from '../assets/Car loan.webp'
 import businessLoanImg from '../assets/Business loan.webp'
@@ -198,7 +199,13 @@ export default function Services() {
                     <div className="absolute inset-0">
                       {srv.image ? (
                         <>
-                          <img src={srv.image} alt={srv.title} className={`absolute inset-0 h-full w-full object-cover ${srv.id === 'travel' ? 'object-left' : 'object-center'}`} />
+                          {/* LazyImage: Flipkart-style — blur-to-sharp, tabhi load ho jab viewport me aaye */}
+                          <LazyImage
+                            src={srv.image}
+                            alt={srv.title}
+                            rootMargin="400px 0px"
+                            className={`absolute inset-0 h-full w-full object-cover ${srv.id === 'travel' ? 'object-left' : 'object-center'}`}
+                          />
                           <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-white/70 to-transparent" />
                         </>
                       ) : (
@@ -282,7 +289,7 @@ export default function Services() {
                     <div className="absolute inset-0">
                       {srv.image ? (
                         <>
-                          <img src={srv.image} alt={srv.title} className="absolute inset-0 h-full w-full object-cover object-center" />
+                          <LazyImage src={srv.image} alt={srv.title} className="absolute inset-0 h-full w-full object-cover object-center" />
                           <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-white/70 to-transparent" />
                         </>
                       ) : (

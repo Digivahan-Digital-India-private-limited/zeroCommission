@@ -5,6 +5,7 @@ import ctaBg from '../assets/footer-team.webp';
 import { useModal } from './ModalContext';
 import { useState } from 'react';
 import ConsultationModal from './ConsultationModal';
+import LazyImage from './LazyImage';
 
 const socials = [
   { icon: Facebook, href: '#', label: 'Facebook' },
@@ -83,7 +84,7 @@ export default function Footer() {
             minHeight: 200,
           }}>
             {/* bg photo */}
-            <img src={ctaBg} alt="team"
+            <LazyImage src={ctaBg} alt="team"
               style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }} />
             {/* gradient overlay */}
             <div style={{
@@ -138,7 +139,7 @@ export default function Footer() {
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 mt-2">
                   <div style={{ display: 'flex' }}>
                     {avatars.map((url, i) => (
-                      <img key={i} src={url} alt="customer"
+                      <LazyImage key={i} src={url} alt="customer"
                         style={{ width: 32, height: 32, borderRadius: '50%', border: '2.5px solid #fff', marginLeft: i === 0 ? 0 : -9, objectFit: 'cover', position: 'relative', zIndex: avatars.length - i }} />
                     ))}
                   </div>
@@ -191,7 +192,7 @@ export default function Footer() {
 
           {/* Brand — full width on mobile, 3 cols on lg */}
           <div className="col-span-2 lg:col-span-3">
-            <img src={logoFull} alt="Zero Commission Logo"
+            <LazyImage src={logoFull} alt="Zero Commission Logo"
               className="h-6 md:h-8 object-contain mb-1.5" />
             <p className="text-white/90 font-bold text-[10px] md:text-[11px] mb-3 leading-snug pr-4 tracking-wide">
               A Unit Of Digivahan Digital India Private Limited <br className="hidden md:block" /><span className="whitespace-nowrap">(CIN U62099DL2023PTC420571)</span>

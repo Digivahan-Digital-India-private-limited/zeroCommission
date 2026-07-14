@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { Link } from 'react-router-dom'
@@ -12,6 +12,17 @@ import img5 from '../assets/image (29).png'
 import img6 from '../assets/image (30).png'
 
 gsap.registerPlugin(ScrollTrigger)
+
+// ── Smart Image Preloader ──────────────────────────────────────────
+// Flipkart / Instagram jaisi technique: sirf agle slide ki image pehle se
+// load karo, baaki sab lazy rakhein. Isse First Contentful Paint fast hota hai.
+const preloadedImages = new Set()
+function preloadImage(src) {
+  if (!src || preloadedImages.has(src)) return
+  preloadedImages.add(src)
+  const img = new window.Image()
+  img.src = src
+}
 
 // ─────────────────────────────────────────────
 //  SLIDE DATA  – add heading / subtitle / etc.
@@ -233,6 +244,11 @@ export default function Hero() {
           // The new back layer will be invisible and placed behind
           gsap.set(front, { opacity: 0, zIndex: 1 })
           gsap.set(back, { zIndex: 2 })
+
+          // ── Smart Preload: 2 slides aage ki image background me preload karo ──
+          // Flipkart jaisi technique: user ko wait na karna pade transition par
+          const twoAhead = (nextIndex + 2) % SLIDES.length
+          preloadImage(SLIDES[twoAhead].image)
 
           timerRef.current = setTimeout(advance, HOLD_MS)
         }

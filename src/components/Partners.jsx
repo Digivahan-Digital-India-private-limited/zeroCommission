@@ -9,6 +9,7 @@ import tataCapitalLogo from '../assets/images (1).png'
 import piramalFinanceLogo from '../assets/images (25).jpg'
 import cholamandalamLogo from '../assets/images.png'
 import standardCharteredLogo from '../assets/Standard_Chartered_(2021).svg.webp'
+import LazyImage from './LazyImage'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -83,7 +84,7 @@ export default function Partners() {
               {/* Card with logo */}
               <div className="w-full flex items-center justify-center px-3 py-4 md:py-5 rounded-2xl bg-white border border-[#e8edf5] hover:border-[#c7d9f5] hover:shadow-lg transition-all duration-300 cursor-default"
                 style={{ minHeight: 96 }}>
-                <img
+                <LazyImage
                   src={p.logo}
                   alt={p.name}
                   className="w-full h-16 md:h-20 object-contain transition-all duration-300"

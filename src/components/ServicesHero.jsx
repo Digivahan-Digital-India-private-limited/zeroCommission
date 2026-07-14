@@ -3,6 +3,7 @@ import { Building2, Percent, FileText, Zap, ArrowRight, CheckCircle2, Clock, Pho
 import heroImage from '../assets/services_hero.webp';
 import serviceHeaderImg from '../assets/services_hero.webp';
 import { Link } from 'react-router-dom';
+import LazyImage from './LazyImage';
 
 export default function ServicesHero() {
   return (
@@ -150,10 +151,10 @@ export default function ServicesHero() {
           {/* Trust Banner */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
             <div className="flex -space-x-3">
-              <img src="https://i.pravatar.cc/100?img=11" className="w-10 h-10 rounded-full border-2 border-white shadow-sm" alt="Customer" />
-              <img src="https://i.pravatar.cc/100?img=12" className="w-10 h-10 rounded-full border-2 border-white shadow-sm" alt="Customer" />
-              <img src="https://i.pravatar.cc/100?img=13" className="w-10 h-10 rounded-full border-2 border-white shadow-sm" alt="Customer" />
-              <img src="https://i.pravatar.cc/100?img=14" className="w-10 h-10 rounded-full border-2 border-white shadow-sm" alt="Customer" />
+              <LazyImage src="https://i.pravatar.cc/100?img=11" className="w-10 h-10 rounded-full border-2 border-white shadow-sm" alt="Customer" />
+              <LazyImage src="https://i.pravatar.cc/100?img=12" className="w-10 h-10 rounded-full border-2 border-white shadow-sm" alt="Customer" />
+              <LazyImage src="https://i.pravatar.cc/100?img=13" className="w-10 h-10 rounded-full border-2 border-white shadow-sm" alt="Customer" />
+              <LazyImage src="https://i.pravatar.cc/100?img=14" className="w-10 h-10 rounded-full border-2 border-white shadow-sm" alt="Customer" />
             </div>
             <div>
               <div className="text-sm text-gray-600 font-medium mb-1">25,000+ Customers Trust Zero Commission</div>
@@ -179,7 +180,7 @@ export default function ServicesHero() {
             <div className="absolute inset-0 bg-blue-100/50 rounded-[40px] transform rotate-3 scale-105"></div>
 
             {/* Main Image */}
-            <img src={serviceHeaderImg} alt="Professional Loan Advisors" className="relative z-10 w-full h-auto object-cover object-center rounded-[32px] shadow-2xl" />
+            <LazyImage src={serviceHeaderImg} alt="Professional Loan Advisors" className="relative z-10 w-full h-auto object-cover object-center rounded-[32px] shadow-2xl" />
 
 
 
