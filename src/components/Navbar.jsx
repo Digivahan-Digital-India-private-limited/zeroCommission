@@ -3,7 +3,6 @@ import { gsap } from 'gsap'
 import { Menu, X, ChevronRight, Upload, ChevronDown } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 import logoFull from '../assets/main logo.png'
-import logoIcon from '../assets/logo-icon.png'
 import ExpertModal from './ExpertModal'
 
 const NavLink = ({ href, children, onClick }) => {
@@ -116,7 +115,7 @@ export default function Navbar() {
               <img
                 src={logoFull}
                 alt="Zero Commission Logo"
-                className="w-auto object-contain h-6 md:h-8"
+                className="w-auto object-contain h-12 md:h-16"
               />
             </div>
           </Link>
@@ -141,7 +140,7 @@ export default function Navbar() {
                   <Link to="/sip-calculator" className="block px-4 py-2.5 text-sm font-semibold text-[#0f1857]/80 hover:bg-[#f0f6ff] hover:text-[#0176C7] transition-colors">SIP Calculator</Link>
                   <Link to="/fd-calculator" className="block px-4 py-2.5 text-sm font-semibold text-[#0f1857]/80 hover:bg-[#f0f6ff] hover:text-[#0176C7] transition-colors">FD Calculator</Link>
                   <Link to="/gst-calculator" className="block px-4 py-2.5 text-sm font-semibold text-[#0f1857]/80 hover:bg-[#f0f6ff] hover:text-[#0176C7] transition-colors">GST Calculator</Link>
-                  <Link to="/balance-transfer" className="block px-4 py-2.5 text-sm font-semibold text-[#0f1857]/80 hover:bg-[#f0f6ff] hover:text-[#0176C7] transition-colors">Balance Transfer</Link>
+                  {/* <Link to="/balance-transfer" className="block px-4 py-2.5 text-sm font-semibold text-[#0f1857]/80 hover:bg-[#f0f6ff] hover:text-[#0176C7] transition-colors">Balance Transfer</Link> */}
                 </div>
               </div>
             </div>

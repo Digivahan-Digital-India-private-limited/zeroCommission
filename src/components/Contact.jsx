@@ -199,7 +199,7 @@ export default function Contact() {
   const contactInfo = [
     { icon: MapPin, title: 'Our Office', lines: ['Unit No. 309, 3rd Floor, Tower-A', 'SAS Tower, Medicity, Sector-38', 'Gurgaon 122001'], gradient: 'from-[#0176C7] to-[#0155AD]' },
     { icon: Phone, title: 'Call Us', lines: ['+91 9990323833'], href: 'tel:+919990323833', gradient: 'from-blue-500 to-indigo-500' },
-    { icon: Mail, title: 'Email Us', lines: ['support@zerocommissionloan.com'], href: 'mailto:support@zerocommissionloan.com', gradient: 'from-purple-500 to-violet-600' },
+    { icon: Mail, title: 'Email Us', lines: ['info@zerocommissionloan.com'], href: 'mailto:info@zerocommissionloan.com', gradient: 'from-purple-500 to-violet-600' },
   ]
 
   return (

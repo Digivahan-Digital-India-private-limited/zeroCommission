@@ -192,7 +192,7 @@ export default function Footer() {
           {/* Brand — full width on mobile, 3 cols on lg */}
           <div className="col-span-2 lg:col-span-3">
             <img src={logoFull} alt="Zero Commission Logo"
-              className="h-6 md:h-8 object-contain mb-1.5" />
+              className="h-10 md:h-14 object-contain mb-1.5" />
             <p className="text-white/90 font-bold text-[10px] md:text-[11px] mb-3 leading-snug pr-4 tracking-wide">
               A Unit Of Digivahan Digital India Private Limited <br className="hidden md:block" /><span className="whitespace-nowrap">(CIN U62099DL2023PTC420571)</span>
             </p>
