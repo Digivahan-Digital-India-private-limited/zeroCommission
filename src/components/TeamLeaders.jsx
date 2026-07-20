@@ -8,7 +8,8 @@ import rekhaPhoto from '../assets/rekha.webp'
 import rahulPhoto from '../assets/rahul.webp'
 import sachinPhoto from '../assets/sachin.webp'
 import rehanPhoto from '../assets/rehan.webp'
-import pinkuPhoto from '../assets/ChatGPT Image Jul 3, 2026, 08_21_58 AM.png'
+import pinkuPhoto from '../assets/pinku.webp'
+import nikhilPhoto from '../assets/Nikhil.webp'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -52,6 +53,16 @@ const team = [
     titleColor: '#0176C7',
     gradientBg: 'linear-gradient(145deg, #cffafe 0%, #e0f2fe 100%)',
     photo: mamtaPhoto,
+  },
+  {
+    name: 'Nikhil Bhola',
+    title: 'Financial Advisor',
+    exp: '3+ Years Exp.',
+    desc: 'Specializes in creating smart financial strategies and helping customers achieve their goals with the right loan solutions.',
+    accent: '#0176C7',
+    titleColor: '#1a237e',
+    gradientBg: 'linear-gradient(145deg, #dbeafe 0%, #eff6ff 100%)',
+    photo: nikhilPhoto,
   },
   {
     name: 'Mohit Tiwari',
