@@ -163,7 +163,7 @@ export default function ApplicationPortal() {
               </div>
             </div>
 
-            <div className="bg-white rounded-3xl p-8 md:p-10"
+            <div className="bg-white rounded-3xl p-6 md:p-10"
               style={{ border: '1px solid rgba(26,35,126,0.08)', boxShadow: '0 20px 60px rgba(26,35,126,0.08)' }}>
               <div className="flex items-center gap-4 mb-8">
                 <div className="w-12 h-12 rounded-2xl flex items-center justify-center"
@@ -177,7 +177,7 @@ export default function ApplicationPortal() {
                   </p>
                 </div>
               </div>
-              <div className="flex gap-3 mb-4">
+              <div className="flex flex-col md:flex-row gap-3 mb-4">
                 {loginMethod === 'email' ? (
                   <input type="email" value={emailInput}
                     onChange={e => { setEmailInput(e.target.value); setEmailError('') }}
@@ -194,7 +194,7 @@ export default function ApplicationPortal() {
                     style={{ color: '#0f1857' }} />
                 )}
                 <button onClick={loginMethod === 'email' ? handleVerifyEmail : handleVerifyToken} disabled={verifying}
-                  className="flex items-center gap-2 px-7 py-4 rounded-2xl font-bold text-white transition-all hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
+                  className="flex items-center justify-center gap-2 px-7 py-4 rounded-2xl font-bold text-white transition-all hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
                   style={{ background: 'linear-gradient(135deg,#0197E0,#0155AD)', boxShadow: '0 10px 24px rgba(1,151,224,0.3)', whiteSpace: 'nowrap' }}>
                   {verifying ? <><Loader2 size={18} className="animate-spin" /> Verifying...</> : <><Search size={18} /> Continue</>}
                 </button>
@@ -217,7 +217,7 @@ export default function ApplicationPortal() {
 
         {step === 2 && (
           <div className="max-w-[860px] mx-auto">
-            <div className="bg-white rounded-3xl p-8 md:p-10"
+            <div className="bg-white rounded-3xl p-6 md:p-10"
               style={{ border: '1px solid rgba(26,35,126,0.08)', boxShadow: '0 20px 60px rgba(26,35,126,0.08)' }}>
               <div className="flex items-center gap-4 mb-8">
                 <div className="w-12 h-12 rounded-2xl flex items-center justify-center"
@@ -229,7 +229,7 @@ export default function ApplicationPortal() {
                   <p className="text-gray-500 text-sm">Sent to <strong className="text-[#0f1857]">{tempEmail}</strong></p>
                 </div>
               </div>
-              <div className="flex gap-3 mb-4">
+              <div className="flex flex-col md:flex-row gap-3 mb-4">
                 <input type="text" value={otpInput}
                   onChange={e => { setOtpInput(e.target.value.replace(/\D/g, '').slice(0, 4)); setOtpError('') }}
                   onKeyDown={e => e.key === 'Enter' && handleVerifyOtp()}
@@ -237,7 +237,7 @@ export default function ApplicationPortal() {
                   className="flex-1 border border-gray-200 rounded-2xl px-5 py-4 text-2xl font-black text-center focus:outline-none focus:border-[#0197E0] focus:ring-2 focus:ring-blue-50 transition-all"
                   style={{ color: '#0f1857', letterSpacing: '1em' }} />
                 <button onClick={handleVerifyOtp}
-                  className="flex items-center gap-2 px-7 py-4 rounded-2xl font-bold text-white transition-all hover:-translate-y-0.5 active:scale-[0.98]"
+                  className="flex items-center justify-center gap-2 px-7 py-4 rounded-2xl font-bold text-white transition-all hover:-translate-y-0.5 active:scale-[0.98]"
                   style={{ background: 'linear-gradient(135deg,#0197E0,#0155AD)', boxShadow: '0 10px 24px rgba(1,151,224,0.3)', whiteSpace: 'nowrap' }}>
                   <CheckCircle2 size={18} /> Verify
                 </button>
