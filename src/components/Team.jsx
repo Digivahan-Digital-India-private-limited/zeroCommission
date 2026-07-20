@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import ceoPhoto from '../assets/WhatsApp Image 2026-06-18 at 2.46.33 PM.jpeg'
+import LazyImage from './LazyImage'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -102,7 +103,7 @@ export default function Team() {
             >
               {/* Photo area */}
               <div className="relative w-full overflow-hidden" style={{ aspectRatio: '4/3.2', background: 'rgba(1,151,224,0.07)' }}>
-                <img src={ceoPhoto} alt="Sandeep Rathor" className="w-full h-full object-cover object-top" />
+                <LazyImage src={ceoPhoto} alt="Sandeep Rathor" className="w-full h-full object-cover object-top" />
 
                 {/* Exp badge — bottom center */}
                 <div style={{

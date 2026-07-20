@@ -9,6 +9,7 @@ import rahulPhoto from '../assets/rahul.webp'
 import sachinPhoto from '../assets/sachin.webp'
 import rehanPhoto from '../assets/rehan.webp'
 import pinkuPhoto from '../assets/ChatGPT Image Jul 3, 2026, 08_21_58 AM.png'
+import LazyImage from './LazyImage'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -212,9 +213,8 @@ export default function TeamLeaders() {
               onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 6px 28px rgba(0,0,0,0.07)' }}
             >
               <div className="relative w-full overflow-hidden" style={{ aspectRatio: '3/3.4' }}>
-
                 {member.photo
-                  ? <img src={member.photo} alt={member.name} className="w-full h-full object-cover object-top" />
+                  ? <LazyImage src={member.photo} alt={member.name} className="w-full h-full object-cover object-top" />
                   : <Avatar name={member.name} gradientBg={member.gradientBg} />
                 }
 

@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useVirtualizer } from '@tanstack/react-virtual';
+import { useInfiniteScroll } from '../hooks/useInfiniteScroll';
 import {
   CheckCircle,
   Clock,
@@ -331,6 +333,144 @@ function ReExportModal({ target, onExportFresh, onExportAll, onCancel, loading }
 import * as XLSX from 'xlsx';
 
 // ─── Main Component ────────────────────────────────────────────────────────
+// ─── Virtual + Infinite Scroll Table Body ────────────────────────────────
+// Flipkart-style: sirf visible rows DOM me hain, aur infinite scroll se
+// nayi rows aati hain jab user neeche scroll karta hai.
+function VirtualTableBody({ visibleItems, sentinelRef, hasMore, isExported, exportedIds, selectedIds, handleSelectRow, handleView, handleToggleEye, setDeleteTarget }) {
+  const parentRef = useRef(null)
+
+  // @tanstack/react-virtual: sirf visible rows render hoti hain
+  const rowVirtualizer = useVirtualizer({
+    count: visibleItems.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 73, // Approximate row height in px
+    overscan: 5, // Extra rows above/below viewport (smoother scroll)
+  })
+
+  const virtualItems = rowVirtualizer.getVirtualItems()
+  const totalHeight = rowVirtualizer.getTotalSize()
+
+  return (
+    <div
+      ref={parentRef}
+      style={{
+        height: Math.min(visibleItems.length * 73, 600), // Max 600px height
+        overflowY: 'auto',
+        position: 'relative',
+      }}
+    >
+      {/* Virtual spacer — full height placeholder */}
+      <div style={{ height: totalHeight, position: 'relative' }}>
+        {/* Only render visible rows */}
+        {virtualItems.map((virtualRow) => {
+          const row = visibleItems[virtualRow.index]
+          const isExp = exportedIds.has(String(row.rawId || row.id))
+          return (
+            <div
+              key={virtualRow.key}
+              data-index={virtualRow.index}
+              ref={rowVirtualizer.measureElement}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                transform: `translateY(${virtualRow.start}px)`,
+              }}
+            >
+              <table style={{ width: '100%', tableLayout: 'fixed', borderCollapse: 'collapse' }}>
+                <tbody>
+                  <tr className={`transition-colors text-sm ${isExp ? 'bg-green-50/40' : 'hover:bg-gray-50/50'}`}
+                    style={{ borderBottom: '1px solid #f3f4f6' }}>
+                    <td className="px-6 py-4" style={{ width: 60 }}>
+                      <div className="flex items-center gap-2">
+                        {isExp && (
+                          <span title="Already exported"
+                            className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-green-100 text-green-600 flex-shrink-0">
+                            <CheckCircle size={13} />
+                          </span>
+                        )}
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.has(row.id)}
+                          onChange={() => handleSelectRow(row.id)}
+                          className="w-4 h-4 text-[#0197E0] rounded border-gray-300 focus:ring-[#0197E0]"
+                        />
+                      </div>
+                    </td>
+                    <td className="px-6 py-4" style={{ width: 130 }}>
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono font-bold text-gray-500 text-xs">{row.id}</span>
+                        {isExp && (
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-green-100 text-green-700 uppercase tracking-wide">
+                            Exported
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <p className="font-bold text-[#1a237e]">{row.name}</p>
+                      <p className="text-gray-400 text-xs mt-0.5">{row.phone}</p>
+                      <p className="text-gray-400 text-xs">{row.email !== '—' ? row.email : ''}</p>
+                    </td>
+                    <td className="px-6 py-4 font-semibold text-gray-700 text-xs" style={{ width: 130 }}>{row.loanType}</td>
+                    <td className="px-6 py-4" style={{ width: 110 }}>
+                      <span className={`inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-lg ${
+                        row.docs === 'Uploaded' ? 'bg-blue-100 text-[#0155AD]' : 'bg-amber-100 text-amber-700'
+                      }`}>
+                        {row.docs === 'Uploaded' ? <CheckCircle size={11} /> : <Clock size={11} />}
+                        {row.docs === 'Uploaded' ? `${row.documentsCount} file(s)` : 'Pending'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4" style={{ width: 110 }}><StatusBadge status={row.status} /></td>
+                    <td className="px-6 py-4 text-right" style={{ width: 170 }}>
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={(e) => handleToggleEye(e, row)}
+                          className={`inline-flex items-center justify-center p-2 rounded-lg border shadow-sm cursor-pointer transition-colors
+                            ${row.viewed
+                              ? 'bg-blue-50 text-[#0197E0] border-transparent hover:bg-blue-100'
+                              : 'bg-white text-gray-400 border-gray-200 hover:text-[#0197E0]'}`}
+                          title={row.viewed ? 'Mark as unviewed' : 'Mark as viewed'}>
+                          {row.viewed ? <Eye size={16} /> : <EyeOff size={16} />}
+                        </button>
+                        <button
+                          onClick={() => handleView(row)}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-gray-200 text-gray-600 hover:text-[#1a237e] hover:border-[#1a237e]/30 font-bold text-xs transition-colors shadow-sm"
+                        >
+                          Open Details
+                        </button>
+                        <button
+                          onClick={() => setDeleteTarget(row)}
+                          className="p-1.5 rounded-lg hover:bg-red-50 text-gray-300 hover:text-red-400 transition-colors border border-transparent hover:border-red-100"
+                          title="Delete">
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* ── Infinite Scroll Sentinel ── */}
+      {/* Ye element screen me aata hai to automatically next batch load ho jati hai */}
+      <div ref={sentinelRef} style={{ height: 1 }} />
+
+      {/* Loading indicator */}
+      {hasMore && (
+        <div className="flex items-center justify-center py-4 gap-2 text-gray-400 text-sm">
+          <Loader2 size={18} className="animate-spin text-[#0197E0]" />
+          <span>Loading more applications...</span>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function ApplicationList({ title, applications, defaultOpenDocs = false }) {
   const [selectedApp, setSelectedApp] = useState(null);
   const [activeDetailTab, setActiveDetailTab] = useState('overview');
@@ -609,12 +749,29 @@ export default function ApplicationList({ title, applications, defaultOpenDocs =
     );
   }
 
+  // ── Infinite Scroll Hook — filteredApps ka data page-by-page dikhao ──────
+  // Flipkart ki tarah: pehle 15, scroll karo, agle 15...
+  const {
+    sentinelRef,
+    hasMore,
+    visibleItems,
+    visibleCount,
+    totalCount,
+  } = useInfiniteScroll({ items: filteredApps, pageSize: 15 })
+
   // ─── List View ────────────────────────────────────────────────────────────
   return (
     <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-50 overflow-hidden">
       {/* Toolbar */}
       <div className="px-6 py-5 border-b border-gray-100 flex flex-col md:flex-row justify-between md:items-center gap-4 bg-gray-50/50">
-        <h2 className="text-xl font-bold text-[#1a237e]">{title}</h2>
+        <div className="flex items-center gap-3">
+          <h2 className="text-xl font-bold text-[#1a237e]">{title}</h2>
+          {/* Performance badge — Flipkart jaisa dikhao */}
+          <span className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-50 border border-blue-100 text-[10px] font-bold text-[#0155AD] uppercase tracking-wider">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#0197E0] animate-pulse" />
+            Virtual Scroll
+          </span>
+        </div>
         <div className="flex flex-wrap gap-3 w-full md:w-auto items-center">
 
           {/* Export button — shows only when rows are selected */}
@@ -648,11 +805,12 @@ export default function ApplicationList({ title, applications, defaultOpenDocs =
         </div>
       </div>
 
+      {/* ── Table Header (fixed, always visible) ── */}
       <div className="overflow-x-auto">
         <table className="w-full text-left">
           <thead className="bg-white text-gray-500 text-sm border-b border-gray-100">
             <tr>
-              <th className="px-6 py-4 font-medium w-10">
+              <th className="px-6 py-4 font-medium" style={{ width: 60 }}>
                 {/* Select All — only ticks non-exported */}
                 <input
                   type="checkbox"
@@ -663,104 +821,58 @@ export default function ApplicationList({ title, applications, defaultOpenDocs =
                   title={nonExportedApps.length === 0 ? 'All applications already exported' : 'Select all unexported'}
                 />
               </th>
-              <th className="px-6 py-4 font-medium">Token</th>
+              <th className="px-6 py-4 font-medium" style={{ width: 130 }}>Token</th>
               <th className="px-6 py-4 font-medium">Applicant</th>
-              <th className="px-6 py-4 font-medium">Loan Type</th>
-              <th className="px-6 py-4 font-medium">Documents</th>
-              <th className="px-6 py-4 font-medium">Status</th>
-              <th className="px-6 py-4 font-medium text-right">Actions</th>
+              <th className="px-6 py-4 font-medium" style={{ width: 130 }}>Loan Type</th>
+              <th className="px-6 py-4 font-medium" style={{ width: 110 }}>Documents</th>
+              <th className="px-6 py-4 font-medium" style={{ width: 110 }}>Status</th>
+              <th className="px-6 py-4 font-medium text-right" style={{ width: 170 }}>Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100 text-sm">
-            {filteredApps.map((row, i) => {
-              const isExported = exportedIds.has(String(row.rawId || row.id));
-              return (
-                <tr key={i} className={`transition-colors ${isExported ? 'bg-green-50/40' : 'hover:bg-gray-50/50'}`}>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      {isExported && (
-                        <span
-                          title="Already exported"
-                          className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-green-100 text-green-600 flex-shrink-0"
-                        >
-                          <CheckCircle size={13} />
-                        </span>
-                      )}
-                      <input
-                        type="checkbox"
-                        checked={selectedIds.has(row.id)}
-                        onChange={() => handleSelectRow(row.id)}
-                        className="w-4 h-4 text-[#0197E0] rounded border-gray-300 focus:ring-[#0197E0]"
-                      />
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono font-bold text-gray-500 text-xs">{row.id}</span>
-                      {isExported && (
-                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-green-100 text-green-700 uppercase tracking-wide">
-                          Exported
-                        </span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <p className="font-bold text-[#1a237e]">{row.name}</p>
-                    <p className="text-gray-400 text-xs mt-0.5">{row.phone}</p>
-                    <p className="text-gray-400 text-xs">{row.email !== '—' ? row.email : ''}</p>
-                  </td>
-                  <td className="px-6 py-4 font-semibold text-gray-700 text-xs">{row.loanType}</td>
-                  <td className="px-6 py-4">
-                    <span className={`inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-lg ${row.docs === 'Uploaded'
-                      ? 'bg-blue-100 text-[#0155AD]'
-                      : 'bg-amber-100 text-amber-700'
-                      }`}>
-                      {row.docs === 'Uploaded' ? <CheckCircle size={11} /> : <Clock size={11} />}
-                      {row.docs === 'Uploaded' ? `${row.documentsCount} file(s)` : 'Pending'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4"><StatusBadge status={row.status} /></td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <button
-                        onClick={(e) => handleToggleEye(e, row)}
-                        className={`inline-flex items-center justify-center p-2 rounded-lg border shadow-sm cursor-pointer transition-colors
-                          ${row.viewed
-                            ? 'bg-blue-50 text-[#0197E0] border-transparent hover:bg-blue-100'
-                            : 'bg-white text-gray-400 border-gray-200 hover:text-[#0197E0]'}`}
-                        title={row.viewed ? 'Mark as unviewed' : 'Mark as viewed'}>
-                        {row.viewed ? <Eye size={16} /> : <EyeOff size={16} />}
-                      </button>
-                      <button
-                        onClick={() => handleView(row)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-gray-200 text-gray-600 hover:text-[#1a237e] hover:border-[#1a237e]/30 font-bold text-xs transition-colors shadow-sm"
-                      >
-                        Open Details
-                      </button>
-                      <button
-                        onClick={() => setDeleteTarget(row)}
-                        className="p-1.5 rounded-lg hover:bg-red-50 text-gray-300 hover:text-red-400 transition-colors border border-transparent hover:border-red-100"
-                        title="Delete">
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-            {filteredApps.length === 0 && (
-              <tr>
-                <td colSpan="7" className="px-6 py-12 text-center text-gray-400">
-                  No applications found.
-                </td>
-              </tr>
-            )}
-          </tbody>
         </table>
       </div>
 
+      {/* ── Virtual + Infinite Scroll Table Body ── */}
+      {visibleItems.length === 0 ? (
+        <div className="px-6 py-12 text-center text-gray-400">
+          No applications found.
+        </div>
+      ) : (
+        <VirtualTableBody
+          visibleItems={visibleItems}
+          sentinelRef={sentinelRef}
+          hasMore={hasMore}
+          exportedIds={exportedIds}
+          selectedIds={selectedIds}
+          handleSelectRow={handleSelectRow}
+          handleView={handleView}
+          handleToggleEye={handleToggleEye}
+          setDeleteTarget={setDeleteTarget}
+        />
+      )}
+
+      {/* ── Footer: Showing X of Y (Infinite scroll progress) ── */}
       <div className="px-6 py-4 border-t border-gray-100 flex justify-between items-center text-sm text-gray-500">
-        <p>Showing {filteredApps.length} of {applications.length} entries</p>
+        <div className="flex items-center gap-3">
+          <p>
+            Showing <strong className="text-[#1a237e]">{Math.min(visibleCount, totalCount)}</strong> of{' '}
+            <strong className="text-[#1a237e]">{totalCount}</strong> entries
+          </p>
+          {/* Infinite scroll progress bar */}
+          {totalCount > 0 && (
+            <div className="hidden md:flex items-center gap-2">
+              <div className="w-24 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-[#0197E0] to-[#0155AD] rounded-full transition-all duration-500"
+                  style={{ width: `${Math.min((visibleCount / totalCount) * 100, 100)}%` }}
+                />
+              </div>
+              <span className="text-xs text-gray-400">
+                {Math.round(Math.min((visibleCount / totalCount) * 100, 100))}%
+              </span>
+            </div>
+          )}
+        </div>
         {exportedIds.size > 0 && (
           <p className="text-xs text-green-600 font-semibold flex items-center gap-1">
             <CheckCircle size={12} /> {exportedIds.size} exported in this session

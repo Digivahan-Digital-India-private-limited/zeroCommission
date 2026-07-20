@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { Link } from 'react-router-dom'
@@ -18,7 +18,7 @@ import img6 from '../assets/Earn on loan.png'
 import img6Mobile from '../assets/Earn Commission.png'
  
 gsap.registerPlugin(ScrollTrigger)
- 
+
 // ─────────────────────────────────────────────
 //  SLIDE DATA  – add heading / subtitle / etc.
 //  for each image here when user provides text
@@ -250,7 +250,7 @@ export default function Hero() {
           // The new back layer will be invisible and placed behind
           gsap.set(front, { opacity: 0, zIndex: 1 })
           gsap.set(back, { zIndex: 2 })
- 
+
           timerRef.current = setTimeout(advance, HOLD_MS)
         }
       })
