@@ -193,9 +193,6 @@ export default function Footer() {
           {/* Brand — full width on mobile, 3 cols on lg */}
           <div className="col-span-2 lg:col-span-3">
 
-            <img src={logoFull} alt="Zero Commission Logo"
-              className="h-10 md:h-14 object-contain mb-1.5" />
-
             <LazyImage src={logoFull} alt="Zero Commission Logo"
               className="h-6 md:h-8 object-contain mb-1.5" />
 

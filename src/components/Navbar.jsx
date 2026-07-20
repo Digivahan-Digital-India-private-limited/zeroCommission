@@ -115,7 +115,7 @@ export default function Navbar() {
               <img
                 src={logoFull}
                 alt="Zero Commission Logo"
-                className="w-auto object-contain h-12 md:h-16"
+                className="w-auto object-contain h-10 md:h-12"
               />
             </div>
           </Link>
